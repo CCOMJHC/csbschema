@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+dynamic = ["version"]
+name = "csbschema"
+authors = [
+  { name="Brian Miles", email="bmiles@ccom.unh.edu" },
+]
+description = "JSON Schema and validator for IHO B-12 Crowdsourced Bathymetry metadata and data"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: Other/Proprietary License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    'jsonschema[format]>=4.6.0',
+]
+
+[project.optional-dependencies]
+test = [
+    "pylint>=2.12.2",
+    "unittest-xml-reporting>=3.2.0",
+    "lxml>=4.6.5",
+    "pytest>=7.2.0",
+    "pytest-cov>=4.0.0",
+    "pytest-xdist>=3.0.2",
+]
+
+[project.urls]
+"Homepage" = "https://bitbucket.org/ccomjhc/csbschema"
+"Bug Tracker" = "https://bitbucket.org/ccomjhc/csbschema"
+
+[project.scripts]
+csbschema = "csbschema.cmd.__main__:main"
+
+[tool.setuptools]
+packages = ["csbschema"]
+
+[tool.setuptools.dynamic]
+version = {attr = "csbschema.__version__"}
