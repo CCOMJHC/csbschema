@@ -31,8 +31,8 @@ test = [
 ]
 
 [project.urls]
-"Homepage" = "https://bitbucket.org/ccomjhc/csbschema"
-"Bug Tracker" = "https://bitbucket.org/ccomjhc/csbschema"
+"Homepage" = "https://github.com/CCOMJHC/csbschema"
+"Bug Tracker" = "https://github.com/CCOMJHC/csbschema/issues"
 
 [project.scripts]
 csbschema = "csbschema.cmd.__main__:main"
