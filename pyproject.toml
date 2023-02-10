@@ -37,8 +37,5 @@ test = [
 [project.scripts]
 csbschema = "csbschema.cmd.__main__:main"
 
-[tool.setuptools]
-packages = ["csbschema"]
-
 [tool.setuptools.dynamic]
 version = {attr = "csbschema.__version__"}
