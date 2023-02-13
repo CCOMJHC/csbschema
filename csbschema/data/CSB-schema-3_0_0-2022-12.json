@@ -117,6 +117,7 @@
           "type": "string",
           "enum": [
             "Transducer",
+            "Waterline",
             "Unknown"
           ],
           "description": "The vertical reference of the depth. The vertical reference will most likely be the transducer (ex: NMEA DBT string) or the waterline (ex: NMEA DPT string)."
@@ -311,126 +312,192 @@
       }
     },
     "Processing": {
-      "type": "object",
-      "properties": {
-        "timeStampInterpolation": {
-          "type": "object",
-          "description": "Method by which times are assigned to data being recorded.",
-          "properties": {
-            "method": {
-              "type": "string",
-              "description": "Name of timestamp interpolation method."
-            },
-            "algorithm": {
-              "type": "string",
-              "description": "Algorithm used to interpolate timestamps."
-            },
-            "version": {
-              "type": "string",
-              "description": "Version of timestamp interpolation method used."
-            }
-          }
-        },
-        "coordinateReferenceChange": {
-          "type": "object",
-          "description": "Processing that changed the reference system of the data. Must include the original and destination coordinate reference system, and the method used to change.",
-          "properties": {
-            "original": {
-              "type": "string",
-              "description": "Original coordinate reference system of the data (e.g., EPSG:4326)."
-            },
-            "destination": {
-              "type": "string",
-              "description": "Coordinate reference system to which data were transformed (e.g., EPSG:8252)."
-            },
-            "method": {
-              "type": "string",
-              "description": "Method used to change coordinates (e.g., GeoTrans)."
-            }
-          }
-        },
-        "verticalReduction": {
-          "type": "object",
-          "description": "Steps taken to reduce raw data to a vertical reference system (Chart Datum, MSL, ellipsoid, water level, etc.). Must include the vertical reference system, and method used.",
-          "properties": {
-            "reference": {
-              "type": "string",
-              "description": "Vertical reference system (e.g., Chart Datum, MSL, ellipsoid, water level, etc.)"
-            },
-            "datum": {
-              "type": "string",
-              "description": "Datum of vertical reference system."
-            },
-            "method": {
-              "type": "string",
-              "description": "Method used to reduce raw data to vertical reference system.",
-              "enum": [
-                "EllipsoidReduction",
-                "Observed Waterlevel",
-                "Predicted Waterlevel"
-              ]
-            },
-            "model": {
-              "type": "string",
-              "description": "Model used for reduction of raw data to vertical reference system"
-            }
-          }
-        },
-        "GNSSProcessing": {
-          "type": "object",
-          "description": "Steps taken to post-process or improve horizontal and vertical positioning.",
-          "properties": {
-            "algorithm": {
-              "type": "string",
-              "description": "Algorithm used for GNSS post-processing",
-              "enum": [
-                "RTKLib",
-                "CSRS-PPP"
-              ]
-            },
-            "version": {
-              "type": "string",
-              "description": "Version of GNSS post-processing algoritm method used."
-            }
-          }
-        },
-        "soundSpeedCorrection": {
-          "type": "object",
-          "description": "Correction to soundings for sound speed in the water.",
-          "properties": {
-            "source": {
-              "type": "string",
-              "description": "Source of correction to soundings."
-            },
-            "method": {
-              "type": "string",
-              "description": "Method of sounding correction."
-            },
-            "version": {
-              "type": "string",
-              "description": "Version of sounding correction method used."
-            }
-          }
-        },
-        "dataProcessing": {
-          "type": "object",
-          "description": "General algorithm used to triage data",
-          "properties": {
-            "name": {
-              "type": "string",
-              "description": "Examples: deduplicate, uncertainty estimation, manual editing"
-            },
-            "parameters": {
-              "type": ["null", "object"],
-              "description": "Parameters used in data processing."
-            },
-            "version": {
-              "type": "string",
-              "description": "Version of algorithm used to triage data."
-            }
-          }
-        }
+      "type": "array",
+      "description":  "List of processing steps recorded for the data",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          { "$ref": "#/definitions/TimeStampInterpolation" },
+          { "$ref": "#/definitions/CoordinateReferenceChange" },
+          { "$ref": "#/definitions/VerticalReduction" },
+          { "$ref": "#/definitions/GNSSProcessing" },
+          { "$ref": "#/definitions/SoundSpeedCorrection" },
+          { "$ref": "#/definitions/DataProcessing" }
+        ]
       }
+    },
+    "TimeStampInterpolation": {
+      "type": "object",
+      "description": "Method by which times are assigned to data being recorded.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "soundSpeed"
+          ]
+        },
+        "timestamp": { "$ref": "#/definitions/RFC3339_time" },
+        "method": {
+          "type": "string",
+          "description": "Name of timestamp interpolation method."
+        },
+        "algorithm": {
+          "type": "string",
+          "description": "Algorithm used to interpolate timestamps."
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of timestamp interpolation method used."
+        }
+      },
+      "required": [ "type", "timestamp", "method" ]
+    },
+    "CoordinateReferenceChange": {
+      "type": "object",
+      "description": "Processing that changed the reference system of the data. Must include the original and destination coordinate reference system, and the method used to change.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "CRSChange"
+          ]
+        },
+        "timestamp":  { "$ref": "#/definitions/RFC3339_time" },
+        "original": {
+          "type": "string",
+          "description": "Original coordinate reference system of the data (e.g., EPSG:4326)."
+        },
+        "destination": {
+          "type": "string",
+          "description": "Coordinate reference system to which data were transformed (e.g., EPSG:8252)."
+        },
+        "method": {
+          "type": "string",
+          "description": "Method used to change coordinates (e.g., GeoTrans)."
+        }
+      },
+      "required": [ "type", "timestamp", "original", "destination" ]
+    },
+    "VerticalReduction": {
+      "type": "object",
+      "description": "Steps taken to reduce raw data to a vertical reference system (Chart Datum, MSL, ellipsoid, water level, etc.). Must include the vertical reference system, and method used.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "VerticalReduction"
+          ]
+        },
+        "timestamp":  { "$ref": "#/definitions/RFC3339_time" },
+        "reference": {
+          "type": "string",
+          "description": "Vertical reference system (e.g., Chart Datum, MSL, ellipsoid, water level, etc.)"
+        },
+        "datum": {
+          "type": "string",
+          "description": "Datum of vertical reference system."
+        },
+        "method": {
+          "type": "string",
+          "description": "Method used to reduce raw data to vertical reference system.",
+          "enum": [
+            "EllipsoidReduction",
+            "Observed Waterlevel",
+            "Predicted Waterlevel"
+          ]
+        },
+        "model": {
+          "type": "string",
+          "description": "Model used for reduction of raw data to vertical reference system"
+        }
+      },
+      "required": [ "type", "timestamp", "reference", "datum", "method" ]
+    },
+    "GNSSProcessing": {
+      "type": "object",
+      "description": "Steps taken to post-process or improve horizontal and vertical positioning.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "GNSS"
+          ]
+        },
+        "timestamp":  { "$ref": "#/definitions/RFC3339_time" },
+        "algorithm": {
+          "type": "string",
+          "description": "Algorithm used for GNSS post-processing",
+          "enum": [
+            "RTKLib",
+            "CSRS-PPP"
+          ]
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of GNSS post-processing algoritm method used."
+        }
+      },
+      "required": [ "type", "timestsamp", "algorithm" ]
+    },
+    "SoundSpeedCorrection": {
+      "type": "object",
+      "description": "Correction to soundings for sound speed in the water.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "SoundSpeed"
+          ]
+        },
+        "timestamp":  { "$ref": "#/definitions/RFC3339_time" },
+        "source": {
+          "type": "string",
+          "description": "Source of correction to soundings."
+        },
+        "method": {
+          "type": "string",
+          "description": "Method of sounding correction."
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of sounding correction method used."
+        }
+      },
+      "required": [ "type", "timestamp", "source", "method" ]
+    },
+    "DataProcessing": {
+      "type": "object",
+      "description": "General algorithm used to triage data",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "Algorithm"
+          ]
+        },
+        "timestamp":  { "$ref": "#/definitions/RFC3339_time" },
+        "name": {
+          "type": "string",
+          "description": "Examples: deduplicate, uncertainty estimation, manual editing"
+        },
+        "source": {
+          "type": "string",
+          "description": "Source (e.g., project, library) of the algorithm applied"
+        },
+        "parameters": {
+          "type": ["null", "object"],
+          "description": "Parameters used in data processing."
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of algorithm used to triage data."
+        },
+        "comment": {
+          "type": "string",
+          "description":  "Explanatory text related to algorithm or its outputs"
+        }
+      },
+      "required": [ "type", "timestamp", "name" ]
     },
     "GeoJSONFeature": {
       "title": "GeoJSON Feature",
