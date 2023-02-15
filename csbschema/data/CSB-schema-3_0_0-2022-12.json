@@ -437,7 +437,7 @@
           "description": "Version of GNSS post-processing algoritm method used."
         }
       },
-      "required": [ "type", "timestsamp", "algorithm" ]
+      "required": [ "type", "timestamp", "algorithm" ]
     },
     "SoundSpeedCorrection": {
       "type": "object",
