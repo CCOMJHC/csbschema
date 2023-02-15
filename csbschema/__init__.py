@@ -7,12 +7,18 @@ from csbschema import validators
 __version__ = '1.0.2.dev0'
 
 
-B12_VERSION_3_0_0 = "3.0.0-2022-12"
-B12_VERSION_3_0_0bis = "3.0.0bis-2022-12"
-DEFAULT_VALIDATOR_VERSION = B12_VERSION_3_0_0
+
+B12_VERSION_3_0_0_2023_02 = '3.0.0-2023-02'
+B12_VERSION_3_0_0bis_2023_02 = '3.0.0bis-2023-02'
+B12_VERSION_3_0_0_2022_12 = '3.0.0-2022-12'
+B12_VERSION_3_0_0bis_2022_12 = '3.0.0bis-2022-12'
+
+DEFAULT_VALIDATOR_VERSION = B12_VERSION_3_0_0_2023_02
 VALIDATORS = {
-    B12_VERSION_3_0_0: validators.validate_b12_3_0_0,
-    B12_VERSION_3_0_0bis: validators.validate_b12_3_0_0bis
+    B12_VERSION_3_0_0_2023_02: validators.validate_b12_3_0_0_2023_02,
+    B12_VERSION_3_0_0bis_2023_02: validators.validate_b12_3_0_0bis_2023_02,
+    B12_VERSION_3_0_0_2022_12: validators.validate_b12_3_0_0_2022_12,
+    B12_VERSION_3_0_0bis_2022_12: validators.validate_b12_3_0_0bis_2022_12
 }
 
 
