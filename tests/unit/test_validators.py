@@ -14,8 +14,8 @@ class TestValidators(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_validate_b12_3_0_0(self):
-        # Validate a valid file
+    def test_validate_b12_3_0_0_valid(self):
+        # Validate a valid file with processing metadta
         b12_filepath = Path(self.fixtures_dir,
                             'b12_v3_example.json')
         (valid, result) = validate_b12_3_0_0(b12_filepath)
@@ -25,6 +25,19 @@ class TestValidators(unittest.TestCase):
         self.assertTrue(isinstance(document, dict))
         with self.assertRaises(KeyError):
             errors: dict = result['errors']
+
+        # Validate a valid file without processing metadta
+        b12_filepath = Path(self.fixtures_dir,
+                            'b12_v3_example-noprocessing.json')
+        (valid, result) = validate_b12_3_0_0(b12_filepath)
+        self.assertTrue(valid)
+        self.assertTrue(isinstance(result, dict))
+        document: dict = result['document']
+        self.assertTrue(isinstance(document, dict))
+        with self.assertRaises(KeyError):
+            errors: dict = result['errors']
+
+    def test_validate_b12_3_0_0_invalid(self):
         # Validate an invalid file
         b12_filepath_invalid = Path(self.fixtures_dir,
                                     'b12_v3_example-invalid.json')
@@ -34,7 +47,7 @@ class TestValidators(unittest.TestCase):
         document: dict = result['document']
         self.assertTrue(isinstance(document, dict))
         errors: List[dict] = result['errors']
-        self.assertTrue(1, len(errors))
+        self.assertEqual(5, len(errors))
         e1 = errors[0]
         self.assertEqual('/features/1/properties', e1['path'])
         self.assertEqual("'depth' is a required property", e1['message'])
@@ -51,6 +64,20 @@ class TestValidators(unittest.TestCase):
         e5 = errors[4]
         self.assertEqual('/properties/platform/dataProcessed', e5['path'])
         self.assertEqual("dataProcessed flag is 'false', but 'processing' properties were found.", e5['message'])
+
+        # Validate an invalid file with an empty processing property array
+        b12_filepath_invalid = Path(self.fixtures_dir,
+                                    'b12_v3_example-invalid-emptyprocessing.json')
+        (valid, result) = validate_b12_3_0_0(b12_filepath_invalid)
+        self.assertFalse(valid)
+        self.assertTrue(isinstance(result, dict))
+        document: dict = result['document']
+        self.assertTrue(isinstance(document, dict))
+        errors: List[dict] = result['errors']
+        self.assertEqual(1, len(errors))
+        e1 = errors[0]
+        self.assertEqual('/properties/processing', e1['path'])
+        self.assertEqual('[] is too short', e1['message'])
 
 
 if __name__ == '__main__':
