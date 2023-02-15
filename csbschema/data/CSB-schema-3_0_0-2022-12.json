@@ -317,17 +317,18 @@
       "minItems": 1,
       "items": {
         "oneOf": [
-          { "$ref": "#/definitions/TimeStampInterpolation" },
-          { "$ref": "#/definitions/CoordinateReferenceChange" },
-          { "$ref": "#/definitions/VerticalReduction" },
-          { "$ref": "#/definitions/GNSSProcessing" },
-          { "$ref": "#/definitions/SoundSpeedCorrection" },
-          { "$ref": "#/definitions/DataProcessing" }
+          { "$ref": "#/definitions/ProcessingTimeStampInterpolation" },
+          { "$ref": "#/definitions/ProcessingCoordinateReferenceChange" },
+          { "$ref": "#/definitions/ProcessingVerticalReduction" },
+          { "$ref": "#/definitions/ProcessingGNSS" },
+          { "$ref": "#/definitions/ProcessingSoundSpeedCorrection" },
+          { "$ref": "#/definitions/ProcessingAlgorithm" }
         ]
       }
     },
-    "TimeStampInterpolation": {
+    "ProcessingTimeStampInterpolation": {
       "type": "object",
+      "required": [ "type", "timestamp", "method" ],
       "description": "Method by which times are assigned to data being recorded.",
       "properties": {
         "type": {
@@ -349,11 +350,11 @@
           "type": "string",
           "description": "Version of timestamp interpolation method used."
         }
-      },
-      "required": [ "type", "timestamp", "method" ]
+      }
     },
-    "CoordinateReferenceChange": {
+    "ProcessingCoordinateReferenceChange": {
       "type": "object",
+      "required": [ "type", "timestamp", "original", "destination" ],
       "description": "Processing that changed the reference system of the data. Must include the original and destination coordinate reference system, and the method used to change.",
       "properties": {
         "type": {
@@ -375,11 +376,11 @@
           "type": "string",
           "description": "Method used to change coordinates (e.g., GeoTrans)."
         }
-      },
-      "required": [ "type", "timestamp", "original", "destination" ]
+      }
     },
-    "VerticalReduction": {
+    "ProcessingVerticalReduction": {
       "type": "object",
+      "required": [ "type", "timestamp", "reference", "datum", "method" ],
       "description": "Steps taken to reduce raw data to a vertical reference system (Chart Datum, MSL, ellipsoid, water level, etc.). Must include the vertical reference system, and method used.",
       "properties": {
         "type": {
@@ -410,11 +411,11 @@
           "type": "string",
           "description": "Model used for reduction of raw data to vertical reference system"
         }
-      },
-      "required": [ "type", "timestamp", "reference", "datum", "method" ]
+      }
     },
-    "GNSSProcessing": {
+    "ProcessingGNSS": {
       "type": "object",
+      "required": [ "type", "timestamp", "algorithm" ],
       "description": "Steps taken to post-process or improve horizontal and vertical positioning.",
       "properties": {
         "type": {
@@ -436,11 +437,11 @@
           "type": "string",
           "description": "Version of GNSS post-processing algoritm method used."
         }
-      },
-      "required": [ "type", "timestamp", "algorithm" ]
+      }
     },
-    "SoundSpeedCorrection": {
+    "ProcessingSoundSpeedCorrection": {
       "type": "object",
+      "required": [ "type", "timestamp", "source", "method" ],
       "description": "Correction to soundings for sound speed in the water.",
       "properties": {
         "type": {
@@ -462,11 +463,11 @@
           "type": "string",
           "description": "Version of sounding correction method used."
         }
-      },
-      "required": [ "type", "timestamp", "source", "method" ]
+      }
     },
-    "DataProcessing": {
+    "ProcessingAlgorithm": {
       "type": "object",
+      "required": [ "type", "timestamp", "name" ],
       "description": "General algorithm used to triage data",
       "properties": {
         "type": {
@@ -496,8 +497,7 @@
           "type": "string",
           "description":  "Explanatory text related to algorithm or its outputs"
         }
-      },
-      "required": [ "type", "timestamp", "name" ]
+      }
     },
     "GeoJSONFeature": {
       "title": "GeoJSON Feature",
