@@ -1,6 +1,4 @@
 import sys
-from importlib.abc import Traversable
-
 import mmap
 import json
 from pathlib import Path
@@ -28,14 +26,14 @@ def _validate_return(document: dict, errors: List[dict]) -> Tuple[bool, dict]:
         return False, {'document': document, 'errors': errors}
 
 
-def get_schema_file(resource_path: str) -> Union[Path, Traversable]:
+def get_schema_file(resource_path: str) -> Path:
     if sys.version_info[0] == 3 and sys.version_info[1] < 9:
         # Python version is less than 3.9, so use older method of resolving resource files
         with resources.path('csbschema.data', resource_path) as schema_file:
             return schema_file
     else:
         # Python version is >= 3.9, so use newer, non-deprecated resource resolution method
-        return resources.files('csbschema').joinpath(f"data/{resource_path}")
+        return Path(str(resources.files('csbschema').joinpath(f"data/{resource_path}")))
 
 
 def validate_b12_3_0_0(document_path: Union[Path, str]) -> Tuple[bool, dict]:
