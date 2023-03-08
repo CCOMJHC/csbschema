@@ -4,7 +4,7 @@ from typing import Tuple, Union
 from csbschema import validators
 
 
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 
 
 B12_VERSION_3_0_0 = "3.0.0-2022-12"
