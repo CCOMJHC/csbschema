@@ -22,7 +22,7 @@ dependencies = [
 
 [project.optional-dependencies]
 test = [
-    "pylint>=2.12.2",
+    "flake8",
     "unittest-xml-reporting>=3.2.0",
     "lxml>=4.6.5",
     "pytest>=7.2.0",
