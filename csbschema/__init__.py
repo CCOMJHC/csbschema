@@ -8,17 +8,13 @@ __version__ = '1.0.3'
 
 
 
-B12_VERSION_3_0_0_2023_02 = '3.0.0-2023-02'
-B12_VERSION_3_0_0bis_2023_02 = '3.0.0bis-2023-02'
-B12_VERSION_3_0_0_2022_12 = '3.0.0-2022-12'
-B12_VERSION_3_0_0bis_2022_12 = '3.0.0bis-2022-12'
+B12_VERSION_3_1_0_2023_03 = '3.1.0-2023-03'
+B12_VERSION_3_2_0_BETA = '3.2.0-BETA'
 
-DEFAULT_VALIDATOR_VERSION = B12_VERSION_3_0_0_2023_02
+DEFAULT_VALIDATOR_VERSION = B12_VERSION_3_1_0_2023_03
 VALIDATORS = {
-    B12_VERSION_3_0_0_2023_02: validators.validate_b12_3_0_0_2023_02,
-    B12_VERSION_3_0_0bis_2023_02: validators.validate_b12_3_0_0bis_2023_02,
-    B12_VERSION_3_0_0_2022_12: validators.validate_b12_3_0_0_2022_12,
-    B12_VERSION_3_0_0bis_2022_12: validators.validate_b12_3_0_0bis_2022_12
+    B12_VERSION_3_1_0_2023_03: validators.validate_b12_3_1_0_2023_03,
+    B12_VERSION_3_2_0_BETA: validators.validate_b12_3_2_0_BETA
 }
 
 

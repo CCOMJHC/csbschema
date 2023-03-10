@@ -11,7 +11,7 @@
       "providerOrganizationName": "Sea-ID",
       "providerEmail": "support@sea-id.org",
       "uniqueVesselID": "SEAID-e8c469f8-df38-11e5-b86d-9a79f06e9478",
-      "convention": "GeoJSON CSB 3.0",
+      "convention": "GeoJSON CSB 3.1",
       "dataLicense": "CC0 1.0",
       "providerLogger": "Rose Point ECS",
       "providerLoggerVersion": "1.0",
@@ -20,12 +20,13 @@
       "vesselPositionReferencePoint": "GNSS"
     },
     "platform": {
+      "uniqueID": "SEAID-e8c469f8-df38-11e5-b86d-9a79f06e9478",
       "type": "Private vessel",
       "name": "White Rose of Drachs",
       "length": 65,
       "IDType": "MMSI",
       "IDNumber": "369958000",
-      "sensorDescriptions": [
+      "sensors": [
         {
           "type": "Sounder",
           "make": "Garmin",
@@ -47,9 +48,10 @@
       ],
       "soundSpeedDocumented": true,
       "positionOffsetsDocumented": true,
-      "dataProcessed": false,
+      "dataProcessed": true,
       "contributorComments": "On 2022-03-08, at 20:30 UTC, the echo sounder lost bottom tracking after the vessel crossed another vessel's wake."
-    }
+    },
+    "processing": []
   },
   "features": [
     {

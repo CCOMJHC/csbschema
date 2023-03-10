@@ -1,4 +1,2 @@
-include csbschema/data/CSB-schema-3_0_0-2022-12.json
-include csbschema/data/CSB-schema-3_0_0-2023-02.json
-include csbschema/data/CSB-schema-3_0_0bis-2022-12.json
-include csbschema/data/CSB-schema-3_0_0bis-2023-02.json
+include csbschema/data/CSB-schema-3_1_0-2023-03.json
+include csbschema/data/CSB-schema-3_2_0-BETA.json

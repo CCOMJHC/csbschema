@@ -11,7 +11,7 @@
       "providerOrganizationName": "Sea-ID",
       "providerEmail": "support@sea-id.org",
       "uniqueVesselID": "SEAID-e8c469f8-df38-11e5-b86d-9a79f06e9478",
-      "convention": "GeoJSON CSB 3.0",
+      "convention": "GeoJSON CSB 3.1",
       "dataLicense": "CC0 1.0",
       "providerLogger": "Rose Point ECS",
       "providerLoggerVersion": "1.0",
@@ -20,12 +20,13 @@
       "vesselPositionReferencePoint": "GNSS"
     },
     "platform": {
+      "uniqueID": "SEAID-e8c469f8-df38-11e5-b86d-9a79f06e9478",
       "type": "Private vessel",
       "name": "White Rose of Drachs",
       "length": 65,
       "IDType": "MMSI",
-      "IDNumber": "IMO3699580",
-      "sensorDescriptions": [
+      "IDNumber": "369958000",
+      "sensors": [
         {
           "type": "Sounder",
           "make": "Garmin",
@@ -47,7 +48,7 @@
       ],
       "soundSpeedDocumented": true,
       "positionOffsetsDocumented": true,
-      "dataProcessed": false,
+      "dataProcessed": true,
       "contributorComments": "On 2022-03-08, at 20:30 UTC, the echo sounder lost bottom tracking after the vessel crossed another vessel's wake."
     },
     "processing": [
@@ -108,20 +109,7 @@
       },
       "properties": {
         "depth": 15.8,
-        "time": "2016-03-03T18:41:49Z"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          41.914832,
-          18.005296
-        ]
-      },
-      "properties": {
-        "time": "2016-03-03T18:41:49Z"
+        "time": "2016-03-03T18:41:49.000Z"
       }
     },
     {
@@ -143,26 +131,13 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          40.914789,
-          19.005552
+          40.941789,
+          19.105552
         ]
       },
       "properties": {
-        "depth": 15.2
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          40.914789,
-          18.005296
-        ]
-      },
-      "properties": {
-        "depth": 18.5,
-        "time": "2016-03-03 18:41:49Z"
+        "depth": 16.7,
+        "time": "2016-03-03T18:41:52.2342z"
       }
     }
   ]

@@ -18,7 +18,7 @@
     },
     "observationCollection": {
       "trustedNode": {
-        "convention": "GeoJSON CSB 3.0",
+        "convention": "GeoJSON CSB 3.2",
         "dataLicense": "CC0 1.0",
         "providerLogger": "Rose Point ECS",
         "providerLoggerVersion": "1.0",
