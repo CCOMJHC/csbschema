@@ -1,3 +1,5 @@
+![example workflow](https://github.com/github/docs/actions/workflows/python-app.yml/badge.svg)
+
 # csbschema
 
 `csbschema` defines a JSON Schema and validator (implemented in Pyhon) for 
