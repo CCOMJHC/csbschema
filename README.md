@@ -1,4 +1,4 @@
-![example workflow](https://github.com/github/docs/actions/workflows/python-app.yml/badge.svg)
+![example workflow](https://github.com/CCOMJHC/csbschema/actions/workflows/python-app.yml/badge.svg)
 
 # csbschema
 
