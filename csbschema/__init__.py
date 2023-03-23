@@ -4,15 +4,16 @@ from typing import Tuple, Union
 from csbschema import validators
 
 
-__version__ = '1.0.3'
+__version__ = '1.0.4'
 
 
-
+B12_VERSION_3_0_0_2023_03 = '3.0.0-2023-03'
 B12_VERSION_3_1_0_2023_03 = '3.1.0-2023-03'
 B12_VERSION_3_2_0_BETA = '3.2.0-BETA'
 
 DEFAULT_VALIDATOR_VERSION = B12_VERSION_3_1_0_2023_03
 VALIDATORS = {
+    B12_VERSION_3_0_0_2023_03: validators.validate_b12_3_0_0_2023_03,
     B12_VERSION_3_1_0_2023_03: validators.validate_b12_3_1_0_2023_03,
     B12_VERSION_3_2_0_BETA: validators.validate_b12_3_2_0_BETA
 }

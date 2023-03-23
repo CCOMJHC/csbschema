@@ -36,9 +36,103 @@ def get_schema_file(resource_path: str) -> Path:
         return Path(str(resources.files('csbschema').joinpath(f"data/{resource_path}")))
 
 
+def validate_b12_3_0_0_2023_03(document_path: Union[Path, str]) -> Tuple[bool, dict]:
+    """
+    Validate B12 version 3.0.0 CSB data and metadata against 2023-03 JSON schema
+    :param document_path: The document to validate
+    :return: Tuple[bool, dict]. If bool is True (which signals that validation succeeded), then dict will contain
+        a single key 'document' whose value is a dict representing the document that was validated. If bool is False
+        (which signals that validation failed), then dict will contain two keys: (1) 'document' whose value
+        is a dict representing the document that failed validation; and (2) 'errors' whose value is a list
+        of dicts mapping JSON path elements to errors encountered at that element.
+    """
+    return validate_b12_3_0_0('CSB-schema-3_0_0-2023-03.json', document_path)
+
+
+def validate_b12_3_0_0(schema_rsrc_name: str,
+                       document_path: Union[Path, str]) -> Tuple[bool, dict]:
+    """
+    Validate B12 version 3.1.0 CSB data and metadata against JSON schema
+    :param schema_rsrc_name: Internal resource name of schema document to use for validation
+    :param document_path: The document to validate
+    :param validator:
+    :return: Tuple[bool, dict]. If bool is True (which signals that validation succeeded), then dict will contain
+        a single key 'document' whose value is a dict representing the document that was validated. If bool is False
+        (which signals that validation failed), then dict will contain two keys: (1) 'document' whose value
+        is a dict representing the document that failed validation; and (2) 'errors' whose value is a list
+        of dicts mapping JSON path elements to errors encountered at that element.
+    """
+    schema_path = get_schema_file(schema_rsrc_name)
+    schema = None
+    with schema_path.open('r') as f:
+       schema = json.load(f)
+    validator = jsonschema.Draft202012Validator(schema)
+
+    document = None
+    with open(document_path, 'rb') as f:
+        with mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_READ) as mm:
+            document = json.load(mm)
+
+    errors = []
+    for e in validator.iter_errors(document):
+        # Basic validation against schema failed, note the failures, but allow validation to continue
+        errors.append(_error_factory('/' + '/'.join([str(elem) for elem in e.absolute_path]),
+                                     e.message))
+
+    if 'properties' not in document:
+        errors.append(_error_factory('/',
+                                     "'properties' is a required property."))
+        return _validate_return(document, errors)
+
+    properties = document['properties']
+
+    # See if there is 'platform' metadata, in which case we'll want to do some custom validation
+    if 'platform' in properties:
+        platform = properties['platform']
+        # Custom validator for Platform.IDNumber, which depends on Platform.IDType
+        if 'IDType' not in platform:
+            errors.append(_error_factory('/properties/platform',
+                                         "'IDType' attribute not present, but must be."))
+        id_type = platform['IDType']
+        if 'IDNumber' not in platform:
+            errors.append(_error_factory('/properties/platform',
+                                         "'IDNumber' attribute not present, but must be."))
+        id_number = platform['IDNumber']
+        try:
+            if not ID_NUMBER_RE[id_type].match(id_number):
+                errors.append(_error_factory('/properties/platform/IDNumber',
+                                             f"IDNumber {id_number} is not valid for IDType {id_type}."))
+        except KeyError:
+            errors.append(_error_factory('/properties/platform/IDType',
+                          f"Unkown IDType {id_type}."))
+
+        # Add custom validator for Platform.dataProcessed, which if False, Processing entries should not be present.
+        data_processed = platform.get('dataProcessed', False)
+        if data_processed:
+            # dataProcessed is True, so "processing" entry ought to be present
+            if 'processing' not in properties:
+                errors.append(_error_factory('/properties/platform/dataProcessed',
+                                             f"dataProcessed flag is 'true', but 'processing' properties were not found."))
+        else:
+            # dataProcessed is False, so "processing" entry should not be present
+            if 'processing' in properties:
+                errors.append(_error_factory('/properties/platform/dataProcessed',
+                                             f"dataProcessed flag is 'false', but 'processing' properties were found."))
+        if 'uniqueID' in platform:
+            # 'uniqueID' can be present in platform as a duplicate of the required element 'uniqueVesselID` in
+            # trustedNode. This is necessary to provide backward compatibility with DCDB ingest processing.
+            if platform['uniqueID'] != properties['trustedNode']['uniqueVesselID']:
+                errors.append(_error_factory('/properties/platform/uniqueID',
+                                             f"uniqueID: {platform['uniqueID']} "
+                                             'does not match /properties/trustedNode/uniqueVesselID: '
+                                             f"{properties['trustedNode']['uniqueVesselID']}"))
+
+    return _validate_return(document, errors)
+
+
 def validate_b12_3_1_0_2023_03(document_path: Union[Path, str]) -> Tuple[bool, dict]:
     """
-    Validate B12 version 3.1.0 CSB data and metadata against JSON 2023-02 schem
+    Validate B12 version 3.1.0 CSB data and metadata against 2023-03 JSON schema
     :param document_path: The document to validate
     :return: Tuple[bool, dict]. If bool is True (which signals that validation succeeded), then dict will contain
         a single key 'document' whose value is a dict representing the document that was validated. If bool is False
@@ -132,7 +226,7 @@ def validate_b12_3_1_0(schema_rsrc_name: str,
 
 def validate_b12_3_2_0_BETA(document_path: Union[Path, str]) -> Tuple[bool, dict]:
     """
-    Validate B12 version 3.0.0bis CSB data and metadata against JSON 2023-02 schem
+    Validate B12 version 3.2.0-BETA CSB data and metadata against BETA JSON schema
     :param document_path: The document to validate
     :return: If bool is True (which signals that validation succeeded), then dict will contain
         a single key 'document' whose value is a dict representing the document that was validated. If bool is False
@@ -146,7 +240,7 @@ def validate_b12_3_2_0_BETA(document_path: Union[Path, str]) -> Tuple[bool, dict
 def validate_b12_3_2_0(schema_rsrc_name: str,
                        document_path: Union[Path, str]) -> Tuple[bool, dict]:
     """
-    Validate B12 version 3.0.0bis CSB data and metadata against JSON schema
+    Validate B12 version 3.2.0 CSB data and metadata against JSON schema
     :param schema_rsrc_name: Internal resource name of schema document to use for validation
     :param document_path: The document to validate
     :param validator:
