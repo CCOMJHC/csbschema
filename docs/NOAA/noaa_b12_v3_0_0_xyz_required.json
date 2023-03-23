@@ -1,0 +1,23 @@
+{
+  "crs": {
+    "horizontal": {
+      "type": "EPSG",
+      "value": 4326
+    },
+    "vertical": "Transducer"
+  },
+  "providerContactPoint": {
+    "orgName": "Example Cruises Inc",
+    "email": "support@example.com",
+    "logger": "Rose Point ECS",
+    "loggerVersion": "1.0"
+  },
+  "convention": "XYZ CSB 3.0",
+  "dataLicense": "CC0 1.0",
+  "platform": {
+    "uniqueID": "EXAMPLE-f8c469f8-df38-11e5-b86d-9a79f06e9478",
+    "correctors": {
+      "positionReferencePoint": "GNSS"
+    }
+  }
+}
