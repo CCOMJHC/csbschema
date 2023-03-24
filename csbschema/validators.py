@@ -79,53 +79,53 @@ def validate_b12_3_0_0(schema_rsrc_name: str,
         errors.append(_error_factory('/' + '/'.join([str(elem) for elem in e.absolute_path]),
                                      e.message))
 
-    if 'properties' not in document:
-        errors.append(_error_factory('/',
-                                     "'properties' is a required property."))
-        return _validate_return(document, errors)
-
-    properties = document['properties']
-
-    # See if there is 'platform' metadata, in which case we'll want to do some custom validation
-    if 'platform' in properties:
-        platform = properties['platform']
-        # Custom validator for Platform.IDNumber, which depends on Platform.IDType
-        if 'IDType' not in platform:
-            errors.append(_error_factory('/properties/platform',
-                                         "'IDType' attribute not present, but must be."))
-        id_type = platform['IDType']
-        if 'IDNumber' not in platform:
-            errors.append(_error_factory('/properties/platform',
-                                         "'IDNumber' attribute not present, but must be."))
-        id_number = platform['IDNumber']
-        try:
-            if not ID_NUMBER_RE[id_type].match(id_number):
-                errors.append(_error_factory('/properties/platform/IDNumber',
-                                             f"IDNumber {id_number} is not valid for IDType {id_type}."))
-        except KeyError:
-            errors.append(_error_factory('/properties/platform/IDType',
-                          f"Unkown IDType {id_type}."))
-
-        # Add custom validator for Platform.dataProcessed, which if False, Processing entries should not be present.
-        data_processed = platform.get('dataProcessed', False)
-        if data_processed:
-            # dataProcessed is True, so "processing" entry ought to be present
-            if 'processing' not in properties:
-                errors.append(_error_factory('/properties/platform/dataProcessed',
-                                             f"dataProcessed flag is 'true', but 'processing' properties were not found."))
-        else:
-            # dataProcessed is False, so "processing" entry should not be present
-            if 'processing' in properties:
-                errors.append(_error_factory('/properties/platform/dataProcessed',
-                                             f"dataProcessed flag is 'false', but 'processing' properties were found."))
-        if 'uniqueID' in platform:
-            # 'uniqueID' can be present in platform as a duplicate of the required element 'uniqueVesselID` in
-            # trustedNode. This is necessary to provide backward compatibility with DCDB ingest processing.
-            if platform['uniqueID'] != properties['trustedNode']['uniqueVesselID']:
-                errors.append(_error_factory('/properties/platform/uniqueID',
-                                             f"uniqueID: {platform['uniqueID']} "
-                                             'does not match /properties/trustedNode/uniqueVesselID: '
-                                             f"{properties['trustedNode']['uniqueVesselID']}"))
+    # if 'properties' not in document:
+    #     errors.append(_error_factory('/',
+    #                                  "'properties' is a required property."))
+    #     return _validate_return(document, errors)
+    #
+    # properties = document['properties']
+    #
+    # # See if there is 'platform' metadata, in which case we'll want to do some custom validation
+    # if 'platform' in properties:
+    #     platform = properties['platform']
+    #     # Custom validator for Platform.IDNumber, which depends on Platform.IDType
+    #     if 'IDType' not in platform:
+    #         errors.append(_error_factory('/properties/platform',
+    #                                      "'IDType' attribute not present, but must be."))
+    #     id_type = platform['IDType']
+    #     if 'IDNumber' not in platform:
+    #         errors.append(_error_factory('/properties/platform',
+    #                                      "'IDNumber' attribute not present, but must be."))
+    #     id_number = platform['IDNumber']
+    #     try:
+    #         if not ID_NUMBER_RE[id_type].match(id_number):
+    #             errors.append(_error_factory('/properties/platform/IDNumber',
+    #                                          f"IDNumber {id_number} is not valid for IDType {id_type}."))
+    #     except KeyError:
+    #         errors.append(_error_factory('/properties/platform/IDType',
+    #                       f"Unkown IDType {id_type}."))
+    #
+    #     # Add custom validator for Platform.dataProcessed, which if False, Processing entries should not be present.
+    #     data_processed = platform.get('dataProcessed', False)
+    #     if data_processed:
+    #         # dataProcessed is True, so "processing" entry ought to be present
+    #         if 'processing' not in properties:
+    #             errors.append(_error_factory('/properties/platform/dataProcessed',
+    #                                          f"dataProcessed flag is 'true', but 'processing' properties were not found."))
+    #     else:
+    #         # dataProcessed is False, so "processing" entry should not be present
+    #         if 'processing' in properties:
+    #             errors.append(_error_factory('/properties/platform/dataProcessed',
+    #                                          f"dataProcessed flag is 'false', but 'processing' properties were found."))
+    #     if 'uniqueID' in platform:
+    #         # 'uniqueID' can be present in platform as a duplicate of the required element 'uniqueVesselID` in
+    #         # trustedNode. This is necessary to provide backward compatibility with DCDB ingest processing.
+    #         if platform['uniqueID'] != properties['trustedNode']['uniqueVesselID']:
+    #             errors.append(_error_factory('/properties/platform/uniqueID',
+    #                                          f"uniqueID: {platform['uniqueID']} "
+    #                                          'does not match /properties/trustedNode/uniqueVesselID: '
+    #                                          f"{properties['trustedNode']['uniqueVesselID']}"))
 
     return _validate_return(document, errors)
 

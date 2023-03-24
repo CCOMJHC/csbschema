@@ -108,6 +108,10 @@ class TestRegexes(unittest.TestCase):
         invalid_time_3 = 'whatyearisthis?'
         self.assertIsNone(regex.match(invalid_time_3))
 
+        # B-12 timestamps must be explicitly in UTC time, not naive times
+        invalid_time_4 = '2021-11-22T16:10:09.346821'
+        self.assertIsNone(regex.match(invalid_time_4))
+
     def test_IDNumber_IMO(self) -> None:
         regex = re.compile(ID_NUMBER_IMO_RE)
 
