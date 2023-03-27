@@ -21,8 +21,8 @@
       "type": "Ship",
       "name": "USCGC Healy",
       "length": 128,
-      "IDType": "IMO",
-      "IDNumber": 9083380,
+      "IDType": "MMSI",
+      "IDNumber": 908338000,
       "sensors": [
         {
           "type": "Sounder",

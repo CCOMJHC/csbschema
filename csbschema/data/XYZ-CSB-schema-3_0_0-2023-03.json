@@ -1,13 +1,14 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/CCOMJHC/csbschema/main/csbschema/data/CSB-schema-3_0_0-2023-03.json",
-  "title": "Schema for Crowdsourced Bathymetry data and metadata, version 3.0.0",
+  "$id": "https://raw.githubusercontent.com/CCOMJHC/csbschema/main/csbschema/data/XYZ-CSB-schema-3_0_0-2023-03.json",
+  "title": "Schema for Crowdsourced Bathymetry metadata (to accompany separate XYZ data), version 3.0.0",
   "type": "object",
   "required": [
-    "type",
     "crs",
-    "properties",
-    "features"
+    "providerContactPoint",
+    "convention",
+    "dataLicense",
+    "platform"
   ],
   "properties": {
     "type": {
@@ -47,12 +48,12 @@
         }
       }
     },
-    "properties": { "$ref": "#/definitions/B12_Metadata" },
-    "lineage" : { "$ref": "#/definitions/Processing"},
-    "features": {
-      "type": "array",
-      "items": { "$ref": "#/definitions/GeoJSONFeature" }
-    }
+    "providerContactPoint": { "$ref": "#/definitions/ProviderContactPoint" },
+    "convention": { "$ref": "#/definitions/Convention" },
+    "dataLicense": { "$ref": "#/definitions/DataLicense" },
+    "platform": { "$ref": "#/definitions/Platform" },
+    "algorithms": { "$ref": "#/definitions/Algorithms" },
+    "lineage" : { "$ref": "#/definitions/Processing"}
   },
   "definitions": {
     "CRS_Name" : {
@@ -69,22 +70,6 @@
       "type": "string",
       "description": "RFC3339 UTC time stamp (note: version 3.0.0 allows timezone naive timestamps).",
       "pattern": "^([0-9]+)-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])[Tt]([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]|60)([.][0-9]+)?[Zz]?$"
-    },
-    "B12_Metadata": {
-      "type": "object",
-      "required": [
-        "providerContactPoint",
-        "convention",
-        "dataLicense",
-        "platform"
-      ],
-      "properties": {
-        "providerContactPoint": { "$ref": "#/definitions/ProviderContactPoint" },
-        "convention": { "$ref": "#/definitions/Convention" },
-        "dataLicense": { "$ref": "#/definitions/DataLicense" },
-        "platform": { "$ref": "#/definitions/Platform" },
-        "algorithms": { "$ref": "#/definitions/Algorithms" }
-      }
     },
     "ProviderContactPoint": {
       "type": "object",
@@ -117,7 +102,7 @@
     "Convention": {
       "type": "string",
       "enum": [
-        "GeoJSON CSB 3.0"
+        "XYZ CSB 3.0"
       ],
       "description": "This field describes the format and version for the data and metadata, such as GeoJSON, CSV, or XYZT. Reference the version of the CSB data convention (e.g., CSB 2.0, CSB 3.0) where possible."
     },
@@ -322,7 +307,7 @@
         "type": "object",
         "required": [
           "name",
-          "Params"
+          "params"
         ]
       }
     },
@@ -529,9 +514,9 @@
         "timestamp":  { "$ref": "#/definitions/RFC3339_time" },
         "detail": {
           "type": "object",
-          "required": [ "Source", "algorithm", "version", "comment" ],
+          "required": [ "source", "algorithm", "version", "comment" ],
           "properties": {
-            "Source": {
+            "source": {
               "type": "string",
               "description": "Source of correction to soundings, e.g., Model | Profile | GeometricMean | Fixed | CarterTable | MatthewTable | WOA13 |..."
             },
@@ -584,88 +569,6 @@
               "description": "Explanatory text related to algorithm or its outputs."
             }
           }
-        }
-      }
-    },
-    "GeoJSONFeature": {
-      "title": "GeoJSON Feature",
-      "type": "object",
-      "required": [
-        "type",
-        "properties",
-        "geometry"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "Feature"
-          ]
-        },
-        "id": {
-          "oneOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "string"
-            }
-          ]
-        },
-        "properties": { "$ref": "#/definitions/CSBDatum" },
-        "geometry": {
-          "oneOf": [
-            {
-              "type": "null"
-            },
-            {
-              "title": "GeoJSON Point",
-              "type": "object",
-              "required": [
-                "type",
-                "coordinates"
-              ],
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "enum": [
-                    "Point"
-                  ]
-                },
-                "coordinates": {
-                  "type": "array",
-                  "minItems": 2,
-                  "items": {
-                    "type": "number"
-                  }
-                },
-                "bbox": {
-                  "type": "array",
-                  "minItems": 4,
-                  "items": {
-                    "type": "number"
-                  }
-                }
-              }
-            }
-          ]
-        }
-      }
-    },
-    "CSBDatum": {
-      "type": "object",
-      "required": [
-        "depth",
-        "time"
-      ],
-      "properties": {
-        "depth": {
-          "type": "number",
-          "description": "The distance from the vertical reference point to the seafloor. Should be collected as a positive value, in metres, with decimetre precision."
-        },
-        "time": {
-          "description": "The date and UTC time stamp for the depth measurement as well as can be determined, ideally to millisecond precision in RFC3339 format.",
-          "$ref": "#/definitions/RFC3339_time"
         }
       }
     }
