@@ -1,3 +1,5 @@
+![example workflow](https://github.com/CCOMJHC/csbschema/actions/workflows/flake8-and-unit-tests.yml/badge.svg)
+
 # csbschema
 
 `csbschema` defines a JSON Schema and validator (implemented in Pyhon) for 
