@@ -55,7 +55,7 @@
       {
         "type": "soundSpeed",
         "timestamp": "2023-02-14T01:00:00.0000Z",
-        "method": "Interpolated RMC Messages",
+        "method": "WOA18 Profile",
         "algorithm": "Unknown",
         "version": "1.0.0"
       },
