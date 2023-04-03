@@ -46,7 +46,7 @@ class TestValidators(unittest.TestCase):
                 _: dict = result['errors']
 
     def test_validate_b12_3_1_0_valid(self):
-        # Validate a valid file with processing metadta
+        # Validate a valid file with processing metadata
         b12_filepath = Path(self.fixtures_dir, 'IHO',
                             'b12_v3_1_0_example.json')
         (valid, result) = validate_b12_3_1_0_2023_03(b12_filepath)
@@ -57,7 +57,7 @@ class TestValidators(unittest.TestCase):
         with self.assertRaises(KeyError):
             _: dict = result['errors']
 
-        # Validate a valid file without processing metadta
+        # Validate a valid file without processing metadata
         b12_filepath = Path(self.fixtures_dir, 'IHO',
                             'b12_v3_1_0_example-noprocessing.json')
         (valid, result) = validate_b12_3_1_0_2023_03(b12_filepath)
