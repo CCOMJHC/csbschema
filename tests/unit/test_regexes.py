@@ -124,7 +124,44 @@ class TestRegexes(unittest.TestCase):
         self.assertIsNone(regex.match('IMO3699580'))
         self.assertIsNotNone(regex.match('369958000'))
 
+    def test_uniqueID(self) -> None:
+        """
+        Test regular expression used to validate uniqueID elements in CSB 3.0.
+        """
+        patt = r'^([0-9a-zA-Z]{2,}(-[0-9a-zA-Z]{2,})+)$'
+        regex = re.compile(patt)
+
+        test_uuid = str(uuid.uuid4())
+        valid_id_1 = f"CCOM-{test_uuid}"
+        self.assertIsNotNone(regex.match(valid_id_1))
+        valid_id_2 = f"CCOM1-{test_uuid}"
+        self.assertIsNotNone(regex.match(valid_id_2))
+        invalid_id_1 = f"1234-{test_uuid}"
+        self.assertIsNotNone(regex.match(invalid_id_1))
+        invalid_id_2 = f"-{test_uuid}"
+        self.assertIsNone(regex.match(invalid_id_2))
+        invalid_id_3 = f".!@3a-{test_uuid}"
+        self.assertIsNone(regex.match(invalid_id_3))
+
+        # Make sure the regex can handle UUIDs with upper case letters
+        test_uuid = str(uuid.uuid4()).upper()
+        # self.assertIsNone(regex.match(test_uuid))
+        valid_id_1 = f"CCOM-{test_uuid}"
+        self.assertIsNotNone(regex.match(valid_id_1))
+        valid_id_2 = f"CCOM1-{test_uuid}"
+        self.assertIsNotNone(regex.match(valid_id_2))
+        invalid_id_1 = f"1234-{test_uuid}"
+        self.assertIsNotNone(regex.match(invalid_id_1))
+        invalid_id_2 = f"-{test_uuid}"
+        self.assertIsNone(regex.match(invalid_id_2))
+        invalid_id_3 = f".!@3a-{test_uuid}"
+        self.assertIsNone(regex.match(invalid_id_3))
+
     def test_uniqueVesselID(self) -> None:
+        """
+        Test regular expression used to validate uniqueVesselID (and duplicated /platform/uniqueID) elements
+        in CSB 3.1 and later.
+        """
         patt = r'^[a-zA-Z][a-zA-Z0-9]*-[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
         regex = re.compile(patt)
 
@@ -154,8 +191,6 @@ class TestRegexes(unittest.TestCase):
         self.assertIsNone(regex.match(invalid_id_2))
         invalid_id_3 = f".!@3a-{test_uuid}"
         self.assertIsNone(regex.match(invalid_id_3))
-
-
 
     def test_providerEmail(self) -> None:
         patt = r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$'
