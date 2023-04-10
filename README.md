@@ -7,6 +7,11 @@
 metadata and data.
 
 # Installation
+To install from PyPi, first create a virtual environment for your project, then:
+```shell
+pip install csbschema
+```
+
 Clone or download this repository, then run:
 ```shell
 $ pip install .

@@ -6,7 +6,8 @@ build-backend = "setuptools.build_meta"
 dynamic = ["version"]
 name = "csbschema"
 authors = [
-  { name="Brian Miles", email="bmiles@ccom.unh.edu" },
+    { name="Brian Miles", email="bmiles@ccom.unh.edu" },
+    { name="Brian Calder", email="brc@ccom.unh.edu" }
 ]
 description = "JSON Schema and validator for IHO B-12 Crowdsourced Bathymetry metadata and data"
 readme = "README.md"
