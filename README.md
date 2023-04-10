@@ -15,7 +15,7 @@ $ pip install .
 # Usage
 
 ## Convention GeoJSON CSB 3.1
-JSON files conforming to [GeoJSON CSB 3.0.0 metadata](docs/IHO/CSB-Guidance_Document-Edition_3.0.pdf) 
+JSON files conforming to [GeoJSON CSB 3.0.0 metadata](docs/IHO/CSB-Guidance_Document-Edition_3.0.pdf)
 can be validated using the 3.1.0-2023-03 [schema](csbschema/data/CSB-schema-3_1_0-2023-03.json)
 (e.g., convention 'GeoJSON CSB 3.1'):
 ```shell
@@ -59,7 +59,6 @@ name '3.2.0-BETA':
 $ csbschema validate -f docs/IHO/b12_v3_2_0-BETA_example.json --version 3.2.0-BETA
 CSB data file 'docs/IHO/b12_v3_2_0-BETA_example.json' successfully validated against schema '3.2.0-BETA'.
 ```
-
 > Run `csbschema validate --help` for more information about validating against different versions of the schema.
 
 # Testing
@@ -68,7 +67,13 @@ First, install csbschema with test dependencies:
 $ pip install ".[test]"
 ```
 
-Then run tests:
+Then run unit tests:
 ```shell
 $ pytest tests/unit/test_*.py
+```
+
+Run integration tests, which tests running the `csbschema validate` command line tool for many of the example
+CSB documents found in the `csbschema` repository:
+```shell
+$ bash tests/integration/validate_cmd.sh
 ```

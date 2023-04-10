@@ -20,6 +20,7 @@
       "vesselPositionReferencePoint": "GNSS"
     },
     "platform": {
+      "uniqueID": "SEAID-e8c469f8-df38-11e5-b86d-9a79f06e9478",
       "type": "Private vessel",
       "name": "White Rose of Drachs",
       "length": 65,
