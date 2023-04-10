@@ -9,8 +9,8 @@ from importlib import resources
 import jsonschema
 
 
-ID_NUMBER_MMSI_RE = re.compile('^\d{9}$')
-ID_NUMBER_IMO_RE = re.compile('^IMO\d{7}$')
+ID_NUMBER_MMSI_RE = re.compile(r"^\d{9}$")
+ID_NUMBER_IMO_RE = re.compile(r"^IMO\d{7}$")
 ID_NUMBER_RE = {'MMSI': ID_NUMBER_MMSI_RE,
                 'IMO': ID_NUMBER_IMO_RE}
 
@@ -36,9 +36,24 @@ def get_schema_file(resource_path: str) -> Path:
         return Path(str(resources.files('csbschema').joinpath(f"data/{resource_path}")))
 
 
-def validate_b12_3_0_0(document_path: Union[Path, str]) -> Tuple[bool, dict]:
+def validate_b12_3_1_0_2023_03(document_path: Union[Path, str]) -> Tuple[bool, dict]:
     """
-    Validate B12 version 3.0.0 CSB data and metadata against JSON schema
+    Validate B12 version 3.1.0 CSB data and metadata against JSON 2023-02 schem
+    :param document_path: The document to validate
+    :return: Tuple[bool, dict]. If bool is True (which signals that validation succeeded), then dict will contain
+        a single key 'document' whose value is a dict representing the document that was validated. If bool is False
+        (which signals that validation failed), then dict will contain two keys: (1) 'document' whose value
+        is a dict representing the document that failed validation; and (2) 'errors' whose value is a list
+        of dicts mapping JSON path elements to errors encountered at that element.
+    """
+    return validate_b12_3_1_0('CSB-schema-3_1_0-2023-03.json', document_path)
+
+
+def validate_b12_3_1_0(schema_rsrc_name: str,
+                       document_path: Union[Path, str]) -> Tuple[bool, dict]:
+    """
+    Validate B12 version 3.1.0 CSB data and metadata against JSON schema
+    :param schema_rsrc_name: Internal resource name of schema document to use for validation
     :param document_path: The document to validate
     :param validator:
     :return: Tuple[bool, dict]. If bool is True (which signals that validation succeeded), then dict will contain
@@ -47,7 +62,7 @@ def validate_b12_3_0_0(document_path: Union[Path, str]) -> Tuple[bool, dict]:
         is a dict representing the document that failed validation; and (2) 'errors' whose value is a list
         of dicts mapping JSON path elements to errors encountered at that element.
     """
-    schema_path = get_schema_file('CSB-schema-3_0_0-2022-12.json')
+    schema_path = get_schema_file(schema_rsrc_name)
     schema = None
     with schema_path.open('r') as f:
        schema = json.load(f)
@@ -103,13 +118,36 @@ def validate_b12_3_0_0(document_path: Union[Path, str]) -> Tuple[bool, dict]:
             if 'processing' in properties:
                 errors.append(_error_factory('/properties/platform/dataProcessed',
                                              f"dataProcessed flag is 'false', but 'processing' properties were found."))
+        if 'uniqueID' in platform:
+            # 'uniqueID' can be present in platform as a duplicate of the required element 'uniqueVesselID` in
+            # trustedNode. This is necessary to provide backward compatibility with DCDB ingest processing.
+            if platform['uniqueID'] != properties['trustedNode']['uniqueVesselID']:
+                errors.append(_error_factory('/properties/platform/uniqueID',
+                                             f"uniqueID: {platform['uniqueID']} "
+                                             'does not match /properties/trustedNode/uniqueVesselID: '
+                                             f"{properties['trustedNode']['uniqueVesselID']}"))
 
     return _validate_return(document, errors)
 
 
-def validate_b12_3_0_0bis(document_path: Union[Path, str]) -> Tuple[bool, dict]:
+def validate_b12_3_2_0_BETA(document_path: Union[Path, str]) -> Tuple[bool, dict]:
+    """
+    Validate B12 version 3.0.0bis CSB data and metadata against JSON 2023-02 schem
+    :param document_path: The document to validate
+    :return: If bool is True (which signals that validation succeeded), then dict will contain
+        a single key 'document' whose value is a dict representing the document that was validated. If bool is False
+        (which signals that validation failed), then dict will contain two keys: (1) 'document' whose value
+        is a dict representing the document that failed validation; and (2) 'errors' whose value is a list
+        of dicts mapping JSON path elements to errors encountered at that element.
+    """
+    return validate_b12_3_2_0('CSB-schema-3_2_0-BETA.json', document_path)
+
+
+def validate_b12_3_2_0(schema_rsrc_name: str,
+                       document_path: Union[Path, str]) -> Tuple[bool, dict]:
     """
     Validate B12 version 3.0.0bis CSB data and metadata against JSON schema
+    :param schema_rsrc_name: Internal resource name of schema document to use for validation
     :param document_path: The document to validate
     :param validator:
     :return: Tuple[bool, dict]. If bool is True (which signals that validation succeeded), then dict will contain
@@ -118,7 +156,7 @@ def validate_b12_3_0_0bis(document_path: Union[Path, str]) -> Tuple[bool, dict]:
         is a dict representing the document that failed validation; and (2) 'errors' whose value is a list
         of dicts mapping JSON path elements to errors encountered at that element.
     """
-    schema_path = get_schema_file('CSB-schema-3_0_0bis-2022-12.json')
+    schema_path = get_schema_file(schema_rsrc_name)
     schema = None
     with schema_path.open('r') as f:
        schema = json.load(f)
