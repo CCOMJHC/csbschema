@@ -1,2 +1,4 @@
+include csbschema/data/CSB-schema-3_0_0-2023-03.json
+include csbschema/data/XYZ-CSB-schema-3_0_0-2023-03.json
 include csbschema/data/CSB-schema-3_1_0-2023-03.json
 include csbschema/data/CSB-schema-3_2_0-BETA.json

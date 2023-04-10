@@ -1,0 +1,42 @@
+{
+  "type": "FeatureCollection",
+  "crs": {
+    "horizontal": {
+      "type": "EPSG",
+      "value": 4326
+    },
+    "vertical": "Transducer"
+  },
+  "properties": {
+    "providerContactPoint": {
+      "orgName": "Example Cruises Inc",
+      "email": "support@example.com",
+      "logger": "Rose Point ECS",
+      "loggerVersion": "1.0"
+    },
+    "convention": "GeoJSON CSB 3.0",
+    "dataLicense": "CC0 1.0",
+    "platform": {
+      "uniqueID": "EXAMPLE-f8c469f8-df38-11e5-b86d-9a79f06e9478",
+      "correctors": {
+        "positionReferencePoint": "GNSS"
+      }
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.37249833123325,
+          72.09587373217158
+        ]
+      },
+      "properties": {
+        "depth": 108.9,
+        "time": "2015-08-06T22:00:00.000Z"
+      }
+    }
+  ]
+}

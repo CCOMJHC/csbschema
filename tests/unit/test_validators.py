@@ -4,19 +4,50 @@ from typing import List
 
 import xmlrunner
 
-from csbschema.validators import validate_b12_3_1_0_2023_03
+from csbschema.validators import validate_b12_3_1_0_2023_03, \
+    validate_b12_3_0_0_2023_03, validate_b12_xyz_3_0_0_2023_03
 
 
 class TestValidators(unittest.TestCase):
     def setUp(self) -> None:
-        self.fixtures_dir = Path(Path(__file__).parent.parent.parent, 'docs/IHO')
+        self.fixtures_dir = Path(Path(__file__).parent.parent.parent, 'docs')
 
     def tearDown(self) -> None:
         pass
 
+    def test_validate_b12_3_0_0_valid(self):
+        documents = [Path(self.fixtures_dir, 'NOAA',
+                          'example_csb_geojson_file.geojson'),
+                     Path(self.fixtures_dir, 'NOAA',
+                          'noaa_b12_v3_0_0_required.json'),
+                     Path(self.fixtures_dir, 'NOAA',
+                          'noaa_b12_v3_0_0_suggested.json')]
+        for doc_path in documents:
+            (valid, result) = validate_b12_3_0_0_2023_03(doc_path)
+            self.assertTrue(valid)
+            self.assertTrue(isinstance(result, dict))
+            document: dict = result['document']
+            self.assertTrue(isinstance(document, dict))
+            with self.assertRaises(KeyError):
+                _: dict = result['errors']
+
+    def test_validate_b12_xyz_3_0_0_valid(self):
+        documents = [Path(self.fixtures_dir, 'NOAA',
+                          'noaa_b12_v3_0_0_xyz_required.json'),
+                     Path(self.fixtures_dir, 'NOAA',
+                          'noaa_b12_v3_0_0_xyz_suggested.json')]
+        for doc_path in documents:
+            (valid, result) = validate_b12_xyz_3_0_0_2023_03(doc_path)
+            self.assertTrue(valid)
+            self.assertTrue(isinstance(result, dict))
+            document: dict = result['document']
+            self.assertTrue(isinstance(document, dict))
+            with self.assertRaises(KeyError):
+                _: dict = result['errors']
+
     def test_validate_b12_3_1_0_valid(self):
-        # Validate a valid file with processing metadta
-        b12_filepath = Path(self.fixtures_dir,
+        # Validate a valid file with processing metadata
+        b12_filepath = Path(self.fixtures_dir, 'IHO',
                             'b12_v3_1_0_example.json')
         (valid, result) = validate_b12_3_1_0_2023_03(b12_filepath)
         self.assertTrue(valid)
@@ -24,10 +55,10 @@ class TestValidators(unittest.TestCase):
         document: dict = result['document']
         self.assertTrue(isinstance(document, dict))
         with self.assertRaises(KeyError):
-            errors: dict = result['errors']
+            _: dict = result['errors']
 
-        # Validate a valid file without processing metadta
-        b12_filepath = Path(self.fixtures_dir,
+        # Validate a valid file without processing metadata
+        b12_filepath = Path(self.fixtures_dir, 'IHO',
                             'b12_v3_1_0_example-noprocessing.json')
         (valid, result) = validate_b12_3_1_0_2023_03(b12_filepath)
         self.assertTrue(valid)
@@ -35,11 +66,11 @@ class TestValidators(unittest.TestCase):
         document: dict = result['document']
         self.assertTrue(isinstance(document, dict))
         with self.assertRaises(KeyError):
-            errors: dict = result['errors']
+            _: dict = result['errors']
 
-    def test_validate_b12_3_0_0_invalid(self):
+    def test_validate_b12_3_1_0_invalid(self):
         # Validate an invalid file
-        b12_filepath_invalid = Path(self.fixtures_dir,
+        b12_filepath_invalid = Path(self.fixtures_dir, 'IHO',
                                     'b12_v3_1_0_example-invalid.json')
         (valid, result) = validate_b12_3_1_0_2023_03(b12_filepath_invalid)
         self.assertFalse(valid)
@@ -73,7 +104,7 @@ class TestValidators(unittest.TestCase):
                          e7['message'])
 
         # Validate an invalid file with an empty processing property array
-        b12_filepath_invalid = Path(self.fixtures_dir,
+        b12_filepath_invalid = Path(self.fixtures_dir, 'IHO',
                                     'b12_v3_1_0_example-invalid-emptyprocessing.json')
         (valid, result) = validate_b12_3_1_0_2023_03(b12_filepath_invalid)
         self.assertFalse(valid)
