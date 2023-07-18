@@ -67,9 +67,9 @@ CSB data file 'docs/IHO/b12_v3_2_0-BETA_example.json' successfully validated aga
 > Run `csbschema validate --help` for more information about validating against different versions of the schema.
 
 # Testing
-First, install csbschema with test dependencies:
+First, install test dependencies:
 ```shell
-$ pip install ".[test]"
+$ pip install -r requirements-test.txt
 ```
 
 Then run unit tests:

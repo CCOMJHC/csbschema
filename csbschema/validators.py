@@ -42,7 +42,7 @@ def _get_validator(schema_rsrc_name: str) -> Draft202012Validator:
     :return: Draft202012Validator instance
     """
     schema_path = _get_schema_file(schema_rsrc_name)
-    with schema_path.open('r') as f:
+    with schema_path.open('r', encoding='utf8') as f:
         schema = json.load(f)
     return jsonschema.Draft202012Validator(schema)
 
