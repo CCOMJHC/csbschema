@@ -4,6 +4,7 @@
 #     https://www.atlassian.com/git/tutorials/saving-changes/gitignore
 
 # Python artifact files
+dist/
 build/
 *.egg-info/
 
