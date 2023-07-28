@@ -16,6 +16,10 @@ csbschema validate -f docs/NOAA/noaa_b12_v3_0_0_required.json \
   --version 3.0.0-2023-03 || exit $?
 csbschema validate -f docs/NOAA/noaa_b12_v3_0_0_suggested.json \
   --version 3.0.0-2023-03 || exit $?
+# Prior version(s):
+# 2023-03
+csbschema validate -f docs/NOAA/noaa_b12_v3_0_0_suggested-2023-03.json \
+  --version 3.0.0-2023-03 || exit $?
 
 
 # Validate B12 3.0.0 XYZ metadata
@@ -23,10 +27,18 @@ csbschema validate -f docs/NOAA/noaa_b12_v3_0_0_xyz_required.json \
   --version XYZ-3.0.0-2023-03 || exit $?
 csbschema validate -f docs/NOAA/noaa_b12_v3_0_0_xyz_suggested.json \
   --version XYZ-3.0.0-2023-03 || exit $?
+# Prior version(s):
+# 2023-03
+csbschema validate -f docs/NOAA/noaa_b12_v3_0_0_xyz_suggested-2023-03.json \
+  --version XYZ-3.0.0-2023-03 || exit $?
 
 
 # Validate B12 3.1.0
 csbschema validate -f docs/IHO/b12_v3_1_0_example.json || exit $?
+# Prior version(s):
+# 2023-03
+csbschema validate -f docs/IHO/b12_v3_1_0_example-2023-03.json \
+  --version 3.1.0-2023-03 || exit $?
 
 
 csbschema validate -f docs/IHO/b12_v3_1_0_example-invalid.json
