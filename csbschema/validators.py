@@ -216,6 +216,48 @@ def validate_b12_3_1_0_2023_03(document_path: Union[Path, str]) -> Tuple[bool, d
     return validate_b12_3_1_0('CSB-schema-3_1_0-2023-03.json', document_path)
 
 
+def validate_b12_3_1_0_properties(properties: dict, errors: List):
+    # See if there is 'platform' metadata, in which case we'll want to do some custom validation
+    platform = properties['platform']
+    # Custom validator for Platform.IDNumber, which depends on Platform.IDType
+    if 'IDType' not in platform:
+        errors.append(_error_factory('/properties/platform',
+                                     "'IDType' attribute not present, but must be."))
+    id_type = platform['IDType']
+    if 'IDNumber' not in platform:
+        errors.append(_error_factory('/properties/platform',
+                                     "'IDNumber' attribute not present, but must be."))
+    id_number = platform['IDNumber']
+    try:
+        if not ID_NUMBER_RE[id_type].match(id_number):
+            errors.append(_error_factory('/properties/platform/IDNumber',
+                                         f"IDNumber {id_number} is not valid for IDType {id_type}."))
+    except KeyError:
+        errors.append(_error_factory('/properties/platform/IDType',
+                                     f"Unknown IDType {id_type}."))
+
+    # Add custom validator for Platform.dataProcessed, which if False, Processing entries should not be present.
+    data_processed = platform.get('dataProcessed', False)
+    if data_processed:
+        # dataProcessed is True, so "processing" entry ought to be present
+        if 'processing' not in properties:
+            errors.append(_error_factory('/properties/platform/dataProcessed',
+                                         f"dataProcessed flag is 'true', but 'processing' properties were not found."))
+    else:
+        # dataProcessed is False, so "processing" entry should not be present
+        if 'processing' in properties:
+            errors.append(_error_factory('/properties/platform/dataProcessed',
+                                         f"dataProcessed flag is 'false', but 'processing' properties were found."))
+    if 'uniqueID' in platform:
+        # 'uniqueID' can be present in platform as a duplicate of the required element 'uniqueVesselID` in
+        # trustedNode. This is necessary to provide backward compatibility with DCDB ingest processing.
+        if platform['uniqueID'] != properties['trustedNode']['uniqueVesselID']:
+            errors.append(_error_factory('/properties/platform/uniqueID',
+                                         f"uniqueID: {platform['uniqueID']} "
+                                         'does not match /properties/trustedNode/uniqueVesselID: '
+                                         f"{properties['trustedNode']['uniqueVesselID']}"))
+
+
 def validate_b12_3_1_0(schema_rsrc_name: str,
                        document_path: Union[Path, str]) -> Tuple[bool, dict]:
     """
@@ -245,48 +287,98 @@ def validate_b12_3_1_0(schema_rsrc_name: str,
 
     properties = document['properties']
 
-    # See if there is 'platform' metadata, in which case we'll want to do some custom validation
+    # # See if there is 'platform' metadata, in which case we'll want to do some custom validation
     if 'platform' in properties:
-        platform = properties['platform']
-        # Custom validator for Platform.IDNumber, which depends on Platform.IDType
-        if 'IDType' not in platform:
-            errors.append(_error_factory('/properties/platform',
-                                         "'IDType' attribute not present, but must be."))
-        id_type = platform['IDType']
-        if 'IDNumber' not in platform:
-            errors.append(_error_factory('/properties/platform',
-                                         "'IDNumber' attribute not present, but must be."))
-        id_number = platform['IDNumber']
-        try:
-            if not ID_NUMBER_RE[id_type].match(id_number):
-                errors.append(_error_factory('/properties/platform/IDNumber',
-                                             f"IDNumber {id_number} is not valid for IDType {id_type}."))
-        except KeyError:
-            errors.append(_error_factory('/properties/platform/IDType',
-                          f"Unknown IDType {id_type}."))
-
-        # Add custom validator for Platform.dataProcessed, which if False, Processing entries should not be present.
-        data_processed = platform.get('dataProcessed', False)
-        if data_processed:
-            # dataProcessed is True, so "processing" entry ought to be present
-            if 'processing' not in properties:
-                errors.append(_error_factory('/properties/platform/dataProcessed',
-                                             f"dataProcessed flag is 'true', but 'processing' properties were not found."))
-        else:
-            # dataProcessed is False, so "processing" entry should not be present
-            if 'processing' in properties:
-                errors.append(_error_factory('/properties/platform/dataProcessed',
-                                             f"dataProcessed flag is 'false', but 'processing' properties were found."))
-        if 'uniqueID' in platform:
-            # 'uniqueID' can be present in platform as a duplicate of the required element 'uniqueVesselID` in
-            # trustedNode. This is necessary to provide backward compatibility with DCDB ingest processing.
-            if platform['uniqueID'] != properties['trustedNode']['uniqueVesselID']:
-                errors.append(_error_factory('/properties/platform/uniqueID',
-                                             f"uniqueID: {platform['uniqueID']} "
-                                             'does not match /properties/trustedNode/uniqueVesselID: '
-                                             f"{properties['trustedNode']['uniqueVesselID']}"))
+        validate_b12_3_1_0_properties(properties, errors)
+    #     platform = properties['platform']
+    #     # Custom validator for Platform.IDNumber, which depends on Platform.IDType
+    #     if 'IDType' not in platform:
+    #         errors.append(_error_factory('/properties/platform',
+    #                                      "'IDType' attribute not present, but must be."))
+    #     id_type = platform['IDType']
+    #     if 'IDNumber' not in platform:
+    #         errors.append(_error_factory('/properties/platform',
+    #                                      "'IDNumber' attribute not present, but must be."))
+    #     id_number = platform['IDNumber']
+    #     try:
+    #         if not ID_NUMBER_RE[id_type].match(id_number):
+    #             errors.append(_error_factory('/properties/platform/IDNumber',
+    #                                          f"IDNumber {id_number} is not valid for IDType {id_type}."))
+    #     except KeyError:
+    #         errors.append(_error_factory('/properties/platform/IDType',
+    #                       f"Unknown IDType {id_type}."))
+    #
+    #     # Add custom validator for Platform.dataProcessed, which if False, Processing entries should not be present.
+    #     data_processed = platform.get('dataProcessed', False)
+    #     if data_processed:
+    #         # dataProcessed is True, so "processing" entry ought to be present
+    #         if 'processing' not in properties:
+    #             errors.append(_error_factory('/properties/platform/dataProcessed',
+    #                                          f"dataProcessed flag is 'true', but 'processing' properties were not found."))
+    #     else:
+    #         # dataProcessed is False, so "processing" entry should not be present
+    #         if 'processing' in properties:
+    #             errors.append(_error_factory('/properties/platform/dataProcessed',
+    #                                          f"dataProcessed flag is 'false', but 'processing' properties were found."))
+    #     if 'uniqueID' in platform:
+    #         # 'uniqueID' can be present in platform as a duplicate of the required element 'uniqueVesselID` in
+    #         # trustedNode. This is necessary to provide backward compatibility with DCDB ingest processing.
+    #         if platform['uniqueID'] != properties['trustedNode']['uniqueVesselID']:
+    #             errors.append(_error_factory('/properties/platform/uniqueID',
+    #                                          f"uniqueID: {platform['uniqueID']} "
+    #                                          'does not match /properties/trustedNode/uniqueVesselID: '
+    #                                          f"{properties['trustedNode']['uniqueVesselID']}"))
 
     return _validate_return(document, errors)
+
+
+def validate_b12_3_1_0_uncrt(schema_rsrc_name: str,
+                             document_path: Union[Path, str]) -> Tuple[bool, dict]:
+    """
+    Validate B12 version 3.1.0 CSB data and metadata against JSON schema
+    :param schema_rsrc_name: Internal resource name of schema document to use for validation
+    :param document_path: The document to validate
+    :param validator:
+    :return: Tuple[bool, dict]. If bool is True (which signals that validation succeeded), then dict will contain
+        a single key 'document' whose value is a dict representing the document that was validated. If bool is False
+        (which signals that validation failed), then dict will contain two keys: (1) 'document' whose value
+        is a dict representing the document that failed validation; and (2) 'errors' whose value is a list
+        of dicts mapping JSON path elements to errors encountered at that element.
+    """
+    validator = _get_validator(schema_rsrc_name)
+    document = _open_document(document_path)
+
+    errors = []
+    for e in validator.iter_errors(document):
+        # Basic validation against schema failed, note the failures, but allow validation to continue
+        errors.append(_error_factory('/' + '/'.join([str(elem) for elem in e.absolute_path]),
+                                     e.message))
+
+    if 'properties' not in document:
+        errors.append(_error_factory('/',
+                                     "'properties' is a required property."))
+        return _validate_return(document, errors)
+
+    properties = document['properties']
+
+    # See if there is 'platform' metadata, in which case we'll want to do some custom validation
+    if 'platform' in properties:
+        validate_b12_3_1_0_properties(properties, errors)
+
+    return _validate_return(document, errors)
+
+
+def validate_b12_3_1_0_2023_08(document_path: Union[Path, str]) -> Tuple[bool, dict]:
+    """
+    Validate B12 version 3.1.0 CSB data and metadata against 2023-08 JSON schema
+    :param document_path: The document to validate
+    :return: Tuple[bool, dict]. If bool is True (which signals that validation succeeded), then dict will contain
+        a single key 'document' whose value is a dict representing the document that was validated. If bool is False
+        (which signals that validation failed), then dict will contain two keys: (1) 'document' whose value
+        is a dict representing the document that failed validation; and (2) 'errors' whose value is a list
+        of dicts mapping JSON path elements to errors encountered at that element.
+    """
+    return validate_b12_3_1_0_uncrt('CSB-schema-3_1_0-2023-08.json', document_path)
 
 
 def validate_b12_3_2_0_BETA(document_path: Union[Path, str]) -> Tuple[bool, dict]:
