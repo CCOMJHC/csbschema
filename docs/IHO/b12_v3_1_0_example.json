@@ -94,6 +94,15 @@
         "parameters": {"a": 1.234, "b": 5.678},
         "version": "1.0.0",
         "comment": "A hypothetical deduplication algorithm."
+      },
+      {
+        "type": "Uncertainty",
+        "timestamp": "2023-02-14T06:00:00.0000Z",
+        "name": "CIDCO Vertical Uncertainty Estimator",
+        "parameters": {"a": 1.234, "b": 5.678},
+        "version": "1.0.0",
+        "comment": "FREE TEXT HERE",
+        "reference": "DOI:10.47366/sabia.v5n1a3"
       }
     ]
   },
@@ -109,7 +118,8 @@
       },
       "properties": {
         "depth": 15.8,
-        "time": "2016-03-03T18:41:49.000Z"
+        "time": "2016-03-03T18:41:49.000Z",
+        "uncertainty": [1.1, 2.2, 3.3]
       }
     },
     {
@@ -123,7 +133,8 @@
       },
       "properties": {
         "depth": 15.2,
-        "time": "2016-03-03T18:41:50Z"
+        "time": "2016-03-03T18:41:50Z",
+        "uncertainty": [1.1, 2.2, 3.3]
       }
     },
     {
@@ -137,7 +148,8 @@
       },
       "properties": {
         "depth": 16.7,
-        "time": "2016-03-03T18:41:52.2342z"
+        "time": "2016-03-03T18:41:52.2342z",
+        "uncertainty": [1.1, 2.2, 3.3]
       }
     }
   ]

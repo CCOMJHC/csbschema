@@ -2,7 +2,7 @@ import sys
 import mmap
 import json
 from pathlib import Path
-from typing import Tuple, Union, List
+from typing import Tuple, Union, List, Optional
 import re
 from importlib import resources
 
@@ -216,8 +216,44 @@ def validate_b12_3_1_0_2023_03(document_path: Union[Path, str]) -> Tuple[bool, d
     return validate_b12_3_1_0('CSB-schema-3_1_0-2023-03.json', document_path)
 
 
-def validate_b12_3_1_0_properties(properties: dict, errors: List):
+def _get_properties_b12_3_1_0(document: dict, errors: List, *,
+                              not_found_mesg: Optional[str] = None) -> Optional[dict]:
+    if 'properties' not in document:
+        # jsonschema should ensure this is present, so this is redundant, but
+        # not bad check to have.
+        mesg = not_found_mesg
+        if mesg is None:
+            mesg = "'properties' is a required property."
+        errors.append(_error_factory('/',
+                                     mesg))
+        return None
+    return document['properties']
+
+
+def _get_properties_processing_b12_3_1_0(properties: dict, errors: List, *,
+                                         not_found_mesg: Optional[str] = None) -> Optional[dict]:
+    if 'processing' not in properties:
+        mesg = not_found_mesg
+        if mesg is None:
+            mesg = "'processing' property is needed for semantic validation but was not found."
+        errors.append(_error_factory('/',
+                                     mesg))
+        return None
+    return properties['processing']
+
+
+
+def validate_b12_3_1_0_properties(document: dict, errors: List) -> None:
+    """
+    Do custom semantic validation on metadata properties
+    """
+    properties = _get_properties_b12_3_1_0(document, errors)
+    if properties is None:
+        return
+
     # See if there is 'platform' metadata, in which case we'll want to do some custom validation
+    if 'platform' not in properties:
+        return
     platform = properties['platform']
     # Custom validator for Platform.IDNumber, which depends on Platform.IDType
     if 'IDType' not in platform:
@@ -257,6 +293,45 @@ def validate_b12_3_1_0_properties(properties: dict, errors: List):
                                          'does not match /properties/trustedNode/uniqueVesselID: '
                                          f"{properties['trustedNode']['uniqueVesselID']}"))
 
+
+def validate_b12_3_1_0_features(document: dict, errors: List) -> None:
+    """
+
+    """
+    if 'features' not in document:
+        # jsonschema should ensure this is present, so this is redundant, but
+        # not bad check to have.
+        errors.append(_error_factory('/',
+                                     "'features' is a required property."))
+        return
+    features = document['features']
+
+    # Look for presence of uncertainty in any datum, if present, make sure Uncertainty processing metadata
+    # element is also present
+    uncert_present = False
+    for f in features:
+        if 'uncertainty' in f['properties']:
+            uncert_present = True
+            break
+    if uncert_present:
+        error_mesg:str = 'Observation uncertainty found, but Uncertainty metadata was not found.'
+        properties:dict = _get_properties_b12_3_1_0(document, errors,
+                                                    not_found_mesg=error_mesg)
+        if properties is None:
+            return
+
+        processing: dict = _get_properties_processing_b12_3_1_0(properties, errors,
+                                                                not_found_mesg=error_mesg)
+        if processing is None:
+            return
+        uncert_meta_present = False
+        for p in processing:
+            if p['type'] == 'Uncertainty':
+                uncert_meta_present = True
+                break
+        if not uncert_meta_present:
+            errors.append(_error_factory('/',
+                                         error_mesg))
 
 def validate_b12_3_1_0(schema_rsrc_name: str,
                        document_path: Union[Path, str]) -> Tuple[bool, dict]:
@@ -348,22 +423,16 @@ def validate_b12_3_1_0_uncrt(schema_rsrc_name: str,
     validator = _get_validator(schema_rsrc_name)
     document = _open_document(document_path)
 
+    # Do "structural" validation using jsonschema and capture all errors encountered
     errors = []
     for e in validator.iter_errors(document):
         # Basic validation against schema failed, note the failures, but allow validation to continue
         errors.append(_error_factory('/' + '/'.join([str(elem) for elem in e.absolute_path]),
                                      e.message))
 
-    if 'properties' not in document:
-        errors.append(_error_factory('/',
-                                     "'properties' is a required property."))
-        return _validate_return(document, errors)
-
-    properties = document['properties']
-
-    # See if there is 'platform' metadata, in which case we'll want to do some custom validation
-    if 'platform' in properties:
-        validate_b12_3_1_0_properties(properties, errors)
+    # Do custom "semantic" validation that is difficult/not possible to express in JSON schema
+    validate_b12_3_1_0_properties(document, errors)
+    validate_b12_3_1_0_features(document, errors)
 
     return _validate_return(document, errors)
 
