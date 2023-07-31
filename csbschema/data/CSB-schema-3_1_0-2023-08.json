@@ -478,7 +478,7 @@
         "comment",
         "reference"
       ],
-      "description": "General algorithm used to triage data",
+      "description": "Algorithm for estimating horizontal and vertical uncertainty of soundings.",
       "properties": {
         "type": {
           "type": "string",

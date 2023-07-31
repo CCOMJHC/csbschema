@@ -323,6 +323,7 @@
           { "$ref": "#/definitions/ProcessingVerticalReduction" },
           { "$ref": "#/definitions/ProcessingGNSS" },
           { "$ref": "#/definitions/ProcessingSoundSpeedCorrection" },
+          { "$ref": "#/definitions/ProcessingUncertainty" },
           { "$ref": "#/definitions/ProcessingAlgorithm" }
         ]
       }
@@ -531,6 +532,52 @@
             "comment": {
               "type": "string",
               "description": "Comments regarding the algorithm used for sound speed correction."
+            }
+          }
+        }
+      }
+    },
+    "ProcessingUncertainty": {
+      "type": "object",
+      "required": [ "type", "timestamp", "detail" ],
+      "description": "Algorithm for estimating horizontal and vertical uncertainty of soundings.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "Uncertainty"
+          ]
+        },
+        "timestamp":  { "$ref": "#/definitions/RFC3339_time" },
+        "detail": {
+          "type": "object",
+          "required": [
+            "name",
+            "parameters",
+            "version",
+            "comment",
+            "reference"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Name of uncertainty estimation algorithm"
+            },
+            "parameters": {
+              "type": "string",
+              "description": "Parameters used in application of uncertainty estimation algorithm."
+            },
+            "version": {
+              "type": "string",
+              "description": "Version of uncertainty estimation algorithm used."
+            },
+            "comment": {
+              "type": "string",
+              "description": "Explanatory text related to uncertainty estimation algorithm or its inputs/outputs"
+            },
+            "reference": {
+              "type": "string",
+              "description": "Source (e.g., paper, project, library) of the algorithm applied. Formats can be: DOI, URL or other."
             }
           }
         }
