@@ -129,6 +129,17 @@
       }
     },
     {
+      "type": "Uncertainty",
+      "timestamp": "2021-11-22T16:10:09.346821",
+      "detail": {
+        "name": "CIDCO Vertical Uncertainty Estimator",
+        "parameters": "FREE TEXT HERE",
+        "version": "1.0.0",
+        "comment": "FREE TEXT HERE",
+        "reference": "DOI:10.47366/sabia.v5n1a3"
+      }
+    },
+    {
       "type": "CRS",
       "timestamp": "2021-11-22T16:10:09.346821",
       "detail": {
