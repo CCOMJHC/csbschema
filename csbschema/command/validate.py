@@ -3,7 +3,7 @@ from typing import Union
 import argparse
 import logging
 
-from csbschema.cmd import EXIT_DATAERR, EXIT_OK
+from csbschema.command import EXIT_DATAERR, EXIT_OK
 from csbschema import DEFAULT_VALIDATOR_VERSION, VALIDATORS, validate_data
 
 logger = logging.getLogger(__name__)

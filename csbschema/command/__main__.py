@@ -3,8 +3,8 @@ import argparse
 from typing import Union
 
 from csbschema import __version__ as version
-from csbschema.cmd import EXIT_USAGE
-from csbschema.cmd.validate import validate
+from csbschema.command import EXIT_USAGE
+from csbschema.command.validate import validate
 
 
 class CSBSchema:
