@@ -5,7 +5,7 @@ from typing import List
 import xmlrunner
 
 from csbschema.validators import validate_b12_3_1_0_2023_08, \
-    validate_b12_3_0_0_2023_03, validate_b12_xyz_3_0_0_2023_03
+    validate_b12_3_0_0_2023_08, validate_b12_xyz_3_0_0_2023_08, validate_b12_3_2_0_BETA
 
 
 class TestValidatorsCurrent(unittest.TestCase):
@@ -23,7 +23,7 @@ class TestValidatorsCurrent(unittest.TestCase):
                      Path(self.fixtures_dir, 'NOAA',
                           'noaa_b12_v3_0_0_suggested.json')]
         for doc_path in documents:
-            (valid, result) = validate_b12_3_0_0_2023_03(doc_path)
+            (valid, result) = validate_b12_3_0_0_2023_08(doc_path)
             self.assertTrue(valid)
             self.assertTrue(isinstance(result, dict))
             document: dict = result['document']
@@ -37,7 +37,7 @@ class TestValidatorsCurrent(unittest.TestCase):
                      Path(self.fixtures_dir, 'NOAA',
                           'noaa_b12_v3_0_0_xyz_suggested.json')]
         for doc_path in documents:
-            (valid, result) = validate_b12_xyz_3_0_0_2023_03(doc_path)
+            (valid, result) = validate_b12_xyz_3_0_0_2023_08(doc_path)
             self.assertTrue(valid)
             self.assertTrue(isinstance(result, dict))
             document: dict = result['document']
@@ -102,7 +102,11 @@ class TestValidatorsCurrent(unittest.TestCase):
         self.assertEqual('/properties/platform/uniqueID', e7['path'])
         self.assertEqual("uniqueID: SEAID-45f5c322-10f2-4946-802e-d5992ad36727 does not match /properties/trustedNode/uniqueVesselID: SEAID-e8c469f8-df38-11e5-b86d-9a79f06e9478",
                          e7['message'])
-        # TODO: Check error message for missing uncert. metadata
+        # Check error message for missing uncert. metadata
+        e8 = errors[7]
+        self.assertEqual('/features/1/properties', e8['path'])
+        self.assertEqual('Observation uncertainty found, but Uncertainty metadata was not found.',
+                         e8['message'])
 
         # Validate an invalid file with an empty processing property array
         b12_filepath_invalid = Path(self.fixtures_dir, 'IHO',
@@ -113,10 +117,27 @@ class TestValidatorsCurrent(unittest.TestCase):
         document: dict = result['document']
         self.assertTrue(isinstance(document, dict))
         errors: List[dict] = result['errors']
-        self.assertEqual(1, len(errors))
+        self.assertEqual(2, len(errors))
         e1 = errors[0]
         self.assertEqual('/properties/processing', e1['path'])
         self.assertEqual('[] is too short', e1['message'])
+        # Check error message for missing uncert. metadata
+        e2 = errors[1]
+        self.assertEqual('/features/2/properties', e2['path'])
+        self.assertEqual('Observation uncertainty found, but Uncertainty metadata was not found.',
+                         e8['message'])
+
+    def test_validate_b12_3_2_0_BETA_valid(self):
+        # Validate a valid file with processing metadata
+        b12_filepath = Path(self.fixtures_dir, 'IHO',
+                            'b12_v3_2_0-BETA_example.json')
+        (valid, result) = validate_b12_3_2_0_BETA(b12_filepath)
+        self.assertTrue(valid)
+        self.assertTrue(isinstance(result, dict))
+        document: dict = result['document']
+        self.assertTrue(isinstance(document, dict))
+        with self.assertRaises(KeyError):
+            _: dict = result['errors']
 
 
 if __name__ == '__main__':
