@@ -316,6 +316,7 @@
           { "$ref": "#/definitions/ProcessingGNSS" },
           { "$ref": "#/definitions/ProcessingSoundSpeedCorrection" },
           { "$ref": "#/definitions/ProcessingUncertainty" },
+          { "$ref": "#/definitions/ProcessingVerticalOffsetAnalysis" },
           { "$ref": "#/definitions/ProcessingAlgorithm" }
         ]
       }
@@ -501,6 +502,46 @@
         }
       }
     },
+    "ProcessingVerticalOffsetAnalysis": {
+      "type": "object",
+      "required": [ "type", "timestamp", "name", "version", "offsets" ],
+      "description": "Analysis of vertical offsets of soundings recorded by intersecting track lines.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "VerticalOffsetAnalysis"
+          ]
+        },
+        "timestamp":  { "$ref": "#/definitions/RFC3339_time" },
+        "name": {
+          "type": "string",
+          "description": "Name of vertical offset analysis algorithm."
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of vertical offset analysis algorithm used."
+        },
+        "offsets": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/VerticalOffsetAnalysisOffset" }
+        },
+        "reference": {
+          "type": "string",
+          "description": "Source (e.g., paper, project, library) of the algorithm applied. Formats can be: DOI, URL or other."
+        },
+        "comment": {
+          "type": "string",
+          "description":  "Explanatory text related to vertical offset analysis algorithm or its inputs/outputs"
+        },
+        "analysis": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/VerticalOffsetAnalysisAnalysisMeta" }
+        }
+      }
+    },
     "ProcessingAlgorithm": {
       "type": "object",
       "required": [ "type", "timestamp", "name" ],
@@ -532,6 +573,33 @@
         "comment": {
           "type": "string",
           "description":  "Explanatory text related to algorithm or its outputs"
+        }
+      }
+    },
+    "VerticalOffsetAnalysisOffset": {
+      "type": "object",
+      "required": [ "x", "y", "delta" ],
+      "properties":{
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "delta": { "type": "number" },
+        "z": { "type": "number" }
+      }
+    },
+    "VerticalOffsetAnalysisAnalysisMeta": {
+      "type": "object",
+      "required": [ "name", "pass", "parameters" ],
+      "properties": {
+        "name": { "type": "string" },
+        "pass": { "type": "boolean" },
+        "parameters": { "type": "object" },
+        "reference": {
+          "type": "string",
+          "description": "Source (e.g., paper, project, library) of the algorithm applied. Formats can be: DOI, URL or other."
+        },
+        "comment": {
+          "type": "string",
+          "description":  "Explanatory text related to analysis or its inputs/outputs"
         }
       }
     },

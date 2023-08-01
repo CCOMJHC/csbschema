@@ -78,35 +78,39 @@ class TestValidatorsCurrent(unittest.TestCase):
         document: dict = result['document']
         self.assertTrue(isinstance(document, dict))
         errors: List[dict] = result['errors']
-        self.assertEqual(8, len(errors))
-        e1 = errors[0]
-        self.assertEqual('/properties/trustedNode/convention', e1['path'])
-        self.assertEqual("'GeoJSON CSB 3.0' is not one of ['GeoJSON CSB 3.1']", e1['message'])
-        e2 = errors[1]
-        self.assertEqual('/features/1/properties', e2['path'])
-        self.assertEqual("'depth' is a required property", e2['message'])
-        e3 = errors[2]
-        self.assertEqual('/features/3/properties', e3['path'])
-        self.assertEqual("'time' is a required property", e3['message'])
-        e4 = errors[3]
-        self.assertEqual('/features/4/properties/time', e4['path'])
+        self.assertEqual(9, len(errors))
+        error = errors[0]
+        self.assertEqual('/properties/trustedNode/convention', error['path'])
+        self.assertEqual("'GeoJSON CSB 3.0' is not one of ['GeoJSON CSB 3.1']", error['message'])
+        error = errors[1]
+        self.assertEqual('/properties/processing/6', error['path'])
+        self.assertEqual("{'type': 'VerticalOffsetAnalysis', 'timestamp': '2021-11-22T16:10:09.346821Z', 'name': 'CIDCO Vertical Offset Analysis', 'version': '1.0.0', 'reference': 'DOI:10.47366/sabia.v5n1a3', 'comment': 'FREE TEXT HERE', 'analysis': [{'name': 'Chi2', 'pass': True, 'parameters': {'a': 123.456, 'b': 789.012, 'target': 'Normal', 'df': 15, 'alpha': 0.05, 'pmf': {'centers': [-1.0, -0.5, 0, 0.5, 1.0], 'counts': [0, 24, 50, 120, 23, 0]}}, 'reference': 'DOI:10.47366/sabia.v5n1a3', 'comment': 'FREE TEXT HERE'}]} is not valid under any of the given schemas",
+                         error['message'])
+        error = errors[2]
+        self.assertEqual('/features/1/properties', error['path'])
+        self.assertEqual("'depth' is a required property", error['message'])
+        error = errors[3]
+        self.assertEqual('/features/3/properties', error['path'])
+        self.assertEqual("'time' is a required property", error['message'])
+        error = errors[4]
+        self.assertEqual('/features/4/properties/time', error['path'])
         self.assertEqual("'2016-03-03 18:41:49Z' does not match '^([0-9]+)-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])[Tt]([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]|60)([.][0-9]+)?[Zz]$'",
-                         e4['message'])
-        e5 = errors[4]
-        self.assertEqual('/properties/platform/IDNumber', e5['path'])
-        self.assertEqual('IDNumber IMO3699580 is not valid for IDType MMSI.', e5['message'])
-        e6 = errors[5]
-        self.assertEqual('/properties/platform/dataProcessed', e6['path'])
-        self.assertEqual("dataProcessed flag is 'false', but 'processing' properties were found.", e6['message'])
-        e7 = errors[6]
-        self.assertEqual('/properties/platform/uniqueID', e7['path'])
+                         error['message'])
+        error = errors[5]
+        self.assertEqual('/properties/platform/IDNumber', error['path'])
+        self.assertEqual('IDNumber IMO3699580 is not valid for IDType MMSI.', error['message'])
+        error = errors[6]
+        self.assertEqual('/properties/platform/dataProcessed', error['path'])
+        self.assertEqual("dataProcessed flag is 'false', but 'processing' properties were found.", error['message'])
+        error = errors[7]
+        self.assertEqual('/properties/platform/uniqueID', error['path'])
         self.assertEqual("uniqueID: SEAID-45f5c322-10f2-4946-802e-d5992ad36727 does not match /properties/trustedNode/uniqueVesselID: SEAID-e8c469f8-df38-11e5-b86d-9a79f06e9478",
-                         e7['message'])
+                         error['message'])
         # Check error message for missing uncert. metadata
-        e8 = errors[7]
-        self.assertEqual('/features/1/properties', e8['path'])
+        error = errors[8]
+        self.assertEqual('/features/1/properties', error['path'])
         self.assertEqual('Observation uncertainty found, but Uncertainty metadata was not found.',
-                         e8['message'])
+                         error['message'])
 
         # Validate an invalid file with an empty processing property array
         b12_filepath_invalid = Path(self.fixtures_dir, 'IHO',
@@ -118,14 +122,14 @@ class TestValidatorsCurrent(unittest.TestCase):
         self.assertTrue(isinstance(document, dict))
         errors: List[dict] = result['errors']
         self.assertEqual(2, len(errors))
-        e1 = errors[0]
-        self.assertEqual('/properties/processing', e1['path'])
-        self.assertEqual('[] is too short', e1['message'])
+        error = errors[0]
+        self.assertEqual('/properties/processing', error['path'])
+        self.assertEqual('[] is too short', error['message'])
         # Check error message for missing uncert. metadata
-        e2 = errors[1]
-        self.assertEqual('/features/2/properties', e2['path'])
+        error = errors[1]
+        self.assertEqual('/features/2/properties', error['path'])
         self.assertEqual('Observation uncertainty found, but Uncertainty metadata was not found.',
-                         e8['message'])
+                         error['message'])
 
     def test_validate_b12_3_2_0_BETA_valid(self):
         # Validate a valid file with processing metadata

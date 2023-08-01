@@ -94,6 +94,35 @@
         "parameters": {"a": 1.234, "b": 5.678},
         "version": "1.0.0",
         "comment": "A hypothetical deduplication algorithm."
+      },
+      {
+        "type": "VerticalOffsetAnalysis",
+        "timestamp": "2021-11-22T16:10:09.346821Z",
+        "name": "CIDCO Vertical Offset Analysis",
+        "version": "1.0.0",
+        "reference": "DOI:10.47366/sabia.v5n1a3",
+        "comment": "FREE TEXT HERE",
+        "analysis": [
+          {
+            "name": "Chi2",
+            "pass": true,
+            "parameters": {
+              "a": 123.456,
+              "b": 789.012,
+              "target": "Normal",
+              "df": 15,
+              "alpha": 0.05,
+              "pmf": {
+                "centers": [-1.0, -0.5, 0, 0.5, 1.0
+                ],
+                "counts": [0, 24, 50, 120, 23, 0
+                ]
+              }
+            },
+            "reference": "DOI:10.47366/sabia.v5n1a3",
+            "comment": "FREE TEXT HERE"
+          }
+        ]
       }
     ]
   },
