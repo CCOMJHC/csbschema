@@ -11,7 +11,7 @@
       "providerOrganizationName": "Sea-ID",
       "providerEmail": "support@sea-id.org",
       "uniqueVesselID": "SEAID-e8c469f8-df38-11e5-b86d-9a79f06e9478",
-      "convention": "GeoJSON CSB 3.0",
+      "convention": "GeoJSON CSB 3.1",
       "dataLicense": "CC0 1.0",
       "providerLogger": "Rose Point ECS",
       "providerLoggerVersion": "1.0",
@@ -20,12 +20,12 @@
       "vesselPositionReferencePoint": "GNSS"
     },
     "platform": {
-      "uniqueID": "SEAID-45f5c322-10f2-4946-802e-d5992ad36727",
+      "uniqueID": "SEAID-e8c469f8-df38-11e5-b86d-9a79f06e9478",
       "type": "Private vessel",
       "name": "White Rose of Drachs",
       "length": 65,
       "IDType": "MMSI",
-      "IDNumber": "IMO3699580",
+      "IDNumber": "369958000",
       "sensors": [
         {
           "type": "Sounder",
@@ -48,7 +48,7 @@
       ],
       "soundSpeedDocumented": true,
       "positionOffsetsDocumented": true,
-      "dataProcessed": false,
+      "dataProcessed": true,
       "contributorComments": "On 2022-03-08, at 20:30 UTC, the echo sounder lost bottom tracking after the vessel crossed another vessel's wake."
     },
     "processing": [
@@ -94,35 +94,6 @@
         "parameters": {"a": 1.234, "b": 5.678},
         "version": "1.0.0",
         "comment": "A hypothetical deduplication algorithm."
-      },
-      {
-        "type": "VerticalOffsetAnalysis",
-        "timestamp": "2021-11-22T16:10:09.346821Z",
-        "name": "CIDCO Vertical Offset Analysis",
-        "version": "1.0.0",
-        "reference": "DOI:10.47366/sabia.v5n1a3",
-        "comment": "FREE TEXT HERE",
-        "analysis": [
-          {
-            "name": "Chi2",
-            "pass": true,
-            "parameters": {
-              "a": 123.456,
-              "b": 789.012,
-              "target": "Normal",
-              "df": 15,
-              "alpha": 0.05,
-              "pmf": {
-                "centers": [-1.0, -0.5, 0, 0.5, 1.0
-                ],
-                "counts": [0, 24, 50, 120, 23, 0
-                ]
-              }
-            },
-            "reference": "DOI:10.47366/sabia.v5n1a3",
-            "comment": "FREE TEXT HERE"
-          }
-        ]
       }
     ]
   },
@@ -138,21 +109,7 @@
       },
       "properties": {
         "depth": 15.8,
-        "time": "2016-03-03T18:41:49Z"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          41.914832,
-          18.005296
-        ]
-      },
-      "properties": {
-        "time": "2016-03-03T18:41:49Z",
-        "uncertainty": [1.1, 2.2, 3.3]
+        "time": "2016-03-03T18:41:49.000Z"
       }
     },
     {
@@ -166,8 +123,7 @@
       },
       "properties": {
         "depth": 15.2,
-        "time": "2016-03-03T18:41:50Z",
-        "uncertainty": [1.1, 2.2, 3.3]
+        "time": "2016-03-03T18:41:50Z"
       }
     },
     {
@@ -175,27 +131,13 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          40.914789,
-          19.005552
+          40.941789,
+          19.105552
         ]
       },
       "properties": {
-        "depth": 15.2
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          40.914789,
-          18.005296
-        ]
-      },
-      "properties": {
-        "depth": 18.5,
-        "time": "2016-03-03 18:41:49Z",
-        "uncertainty": [1.1, 2.2, 3.3]
+        "depth": 16.7,
+        "time": "2016-03-03T18:41:52.2342z"
       }
     }
   ]

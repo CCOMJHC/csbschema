@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 import sys
 import mmap
 import json
 from pathlib import Path
-from typing import Tuple, Union, List
+from typing import Tuple, Union, List, Optional
+from collections.abc import Callable
 import re
 from importlib import resources
 
@@ -53,26 +56,156 @@ def _open_document(document_path: Union[Path, str]) -> Union[dict, list]:
             return json.load(mm)
 
 
-def validate_b12_3_0_0_2023_03(document_path: Union[Path, str]) -> Tuple[bool, dict]:
+def _get_properties(document: dict, errors: List, *,
+                    not_found_mesg: Optional[str] = None) -> Optional[dict]:
+    if 'properties' not in document:
+        mesg = not_found_mesg
+        if mesg is None:
+            mesg = "'properties' property is needed for semantic validation, but was not found."
+        errors.append(_error_factory('/',
+                                     mesg))
+        return None
+    return document['properties']
+
+
+def _get_properties_processing(properties: dict, errors: List, *,
+                               not_found_mesg: Optional[str] = None,
+                               context_path: str = '/properties') -> Optional[dict]:
+    if 'processing' not in properties:
+        mesg = not_found_mesg
+        if mesg is None:
+            mesg = "'processing' property is needed for semantic validation, but was not found."
+        errors.append(_error_factory(context_path,
+                                     mesg))
+        return None
+    return properties['processing']
+
+
+def _get_properties_obs_coll_processing(properties: dict, errors: List, *,
+                                        not_found_mesg: Optional[str] = None) -> Optional[dict]:
+    if 'observationCollection' not in properties:
+        mesg = not_found_mesg
+        if mesg is None:
+            mesg = "'observationCollection' property is needed for semantic validation, but was not found."
+        errors.append(_error_factory('/properties',
+                                     mesg))
+        return None
+
+    observationCollection = properties['observationCollection']
+
+    return _get_properties_processing(properties['observationCollection'], errors,
+                                      context_path='/properties/observationCollection')
+
+
+def _get_lineage(document: dict, errors: List, *,
+                 not_found_mesg: Optional[str] = None) -> Optional[dict]:
+    if 'lineage' not in document:
+        mesg = not_found_mesg
+        if mesg is None:
+            mesg = "'lineage' property is needed for semantic validation, but was not found."
+        errors.append(_error_factory('/',
+                                     mesg))
+        return None
+    return document['lineage']
+
+
+def _get_features(document: dict, errors: List, *,
+                  not_found_mesg: Optional[str] = None) -> Optional[dict]:
+    if 'features' not in document:
+        mesg = not_found_mesg
+        if mesg is None:
+            mesg = "'features' property is needed for semantic validation, but was not found."
+        errors.append(_error_factory('/',
+                                     mesg))
+        return None
+    return document['features']
+
+
+def validate_b12_3_0_0_properties(document: dict, errors: List) -> None:
     """
-    Validate B12 version 3.0.0 CSB data and metadata against 2023-03 JSON schema
-    :param document_path: The document to validate
-    :return: Tuple[bool, dict]. If bool is True (which signals that validation succeeded), then dict will contain
-        a single key 'document' whose value is a dict representing the document that was validated. If bool is False
-        (which signals that validation failed), then dict will contain two keys: (1) 'document' whose value
-        is a dict representing the document that failed validation; and (2) 'errors' whose value is a list
-        of dicts mapping JSON path elements to errors encountered at that element.
+    Do custom semantic validation on metadata properties
     """
-    return validate_b12_3_0_0('CSB-schema-3_0_0-2023-03.json', document_path)
+    properties: dict = _get_properties(document, errors)
+    if properties is None:
+        return None
+
+    if 'platform' not in properties:
+        return None
+
+    # There is 'platform' metadata, in which case we'll want to do some custom validation
+    platform = properties['platform']
+    # Custom validation for Platform.IDNumber, which depends on Platform.IDType
+    id_type_present = False
+    id_num_present = False
+    if 'IDType' in platform:
+        id_type_present = True
+    if 'IDNumber' in platform:
+        id_num_present = True
+
+    if id_type_present and not id_num_present:
+        errors.append(_error_factory('/properties/platform',
+                                     "'IDNumber' attribute not present, but 'IDType' was specified."))
+    elif id_num_present and not id_type_present:
+        errors.append(_error_factory('/properties/platform',
+                                     "'IDType' attribute not present, but 'IDNumber' was specified."))
+    if id_type_present and id_num_present:
+        id_type = platform['IDType']
+        id_number = str(platform['IDNumber'])
+        if id_type == 'IMO':
+            # Use the same
+            id_number = f"IMO{id_number}"
+        try:
+            if not ID_NUMBER_RE[id_type].match(id_number):
+                errors.append(_error_factory('/properties/platform/IDNumber',
+                                             f"IDNumber {platform['IDNumber']} is not valid for IDType {id_type}."))
+        except KeyError:
+            errors.append(_error_factory('/properties/platform/IDType',
+                                         f"Unknown IDType {id_type}."))
+
+
+def validate_b12_3_0_0_features(document: dict, errors: List) -> None:
+    """
+
+    """
+    features = _get_features(document, errors)
+    if features is None:
+        return
+
+    # Look for presence of uncertainty in any datum, if present, make sure Uncertainty processing metadata
+    # element is also present
+    uncert_present = False
+    first_feature_with_uncert = 0
+    for f in features:
+        if 'uncertainty' in f['properties']:
+            uncert_present = True
+            break
+        first_feature_with_uncert += 1
+    if uncert_present:
+        properties: dict = _get_properties(document, errors)
+        if properties is None:
+            return
+
+        error_mesg: str = 'Observation uncertainty found, but Uncertainty metadata was not found.'
+        uncert_meta_present = False
+        lineage: dict = _get_lineage(document, errors)
+        if lineage is not None:
+            for l in lineage:
+                if l['type'] == 'Uncertainty':
+                    uncert_meta_present = True
+                    break
+        if not uncert_meta_present:
+            errors.append(_error_factory(f"/features/{first_feature_with_uncert}/properties",
+                                         error_mesg))
 
 
 def validate_b12_3_0_0(schema_rsrc_name: str,
-                       document_path: Union[Path, str]) -> Tuple[bool, dict]:
+                       document_path: Union[Path, str], *,
+                       validate_uncertainty: bool = True) -> Tuple[bool, dict]:
     """
     Validate B12 version 3.0.0 CSB data and metadata against JSON schema
     :param schema_rsrc_name: Internal resource name of schema document to use for validation
     :param document_path: The document to validate
-    :param validator:
+    :param validate_uncertainty: Boolean flag controlling whether uncertainty metadata should be validated.
     :return: Tuple[bool, dict]. If bool is True (which signals that validation succeeded), then dict will contain
         a single key 'document' whose value is a dict representing the document that was validated. If bool is False
         (which signals that validation failed), then dict will contain two keys: (1) 'document' whose value
@@ -88,52 +221,17 @@ def validate_b12_3_0_0(schema_rsrc_name: str,
         errors.append(_error_factory('/' + '/'.join([str(elem) for elem in e.absolute_path]),
                                      e.message))
 
-    if 'properties' not in document:
-        errors.append(_error_factory('/',
-                                     "'properties' is a required property."))
-        return _validate_return(document, errors)
-
-    properties = document['properties']
-
-    # See if there is 'platform' metadata, in which case we'll want to do some custom validation
-    if 'platform' in properties:
-        platform = properties['platform']
-        # Custom validation for Platform.IDNumber, which depends on Platform.IDType
-        id_type_present = False
-        id_num_present = False
-        if 'IDType' in platform:
-            id_type_present = True
-        if 'IDNumber' in platform:
-            id_num_present = True
-
-        if id_type_present and not id_num_present:
-            errors.append(_error_factory('/properties/platform',
-                                         "'IDNumber' attribute not present, but 'IDType' was specified."))
-        elif id_num_present and not id_type_present:
-            errors.append(_error_factory('/properties/platform',
-                                         "'IDType' attribute not present, but 'IDNumber' was specified."))
-        if id_type_present and id_num_present:
-            id_type = platform['IDType']
-            id_number = str(platform['IDNumber'])
-            if id_type == 'IMO':
-                # Use the same
-                id_number = f"IMO{id_number}"
-            try:
-                if not ID_NUMBER_RE[id_type].match(id_number):
-                    errors.append(_error_factory('/properties/platform/IDNumber',
-                                                 f"IDNumber {platform['IDNumber']} is not valid for IDType {id_type}."))
-            except KeyError:
-                errors.append(_error_factory('/properties/platform/IDType',
-                              f"Unknown IDType {id_type}."))
+    # Do custom "semantic" validation that is difficult/not possible to express in JSON schema
+    validate_b12_3_0_0_properties(document, errors)
+    if validate_uncertainty:
+        validate_b12_3_0_0_features(document, errors)
 
     return _validate_return(document, errors)
 
 
-def validate_b12_xyz_3_0_0_2023_03(document_path: Union[Path, str]) -> Tuple[bool, dict]:
+def validate_b12_3_0_0_2023_03(document_path: Union[Path, str]) -> Tuple[bool, dict]:
     """
-    Validate B12 version 3.0.0 CSB XYZ metadata against 2023-03 JSON schema. Note: this validates
-    metadata only, and is intended for use with metadata JSON files that are separate from CSB
-    data provided in CSV or other file types.
+    Validate B12 version 3.0.0 CSB data and metadata against 2023-03 JSON schema
     :param document_path: The document to validate
     :return: Tuple[bool, dict]. If bool is True (which signals that validation succeeded), then dict will contain
         a single key 'document' whose value is a dict representing the document that was validated. If bool is False
@@ -141,7 +239,21 @@ def validate_b12_xyz_3_0_0_2023_03(document_path: Union[Path, str]) -> Tuple[boo
         is a dict representing the document that failed validation; and (2) 'errors' whose value is a list
         of dicts mapping JSON path elements to errors encountered at that element.
     """
-    return validate_b12_xyz_3_0_0('XYZ-CSB-schema-3_0_0-2023-03.json', document_path)
+    return validate_b12_3_0_0('CSB-schema-3_0_0-2023-03.json', document_path,
+                              validate_uncertainty=False)
+
+
+def validate_b12_3_0_0_2023_08(document_path: Union[Path, str]) -> Tuple[bool, dict]:
+    """
+    Validate B12 version 3.0.0 CSB data and metadata against 2023-08 JSON schema
+    :param document_path: The document to validate
+    :return: Tuple[bool, dict]. If bool is True (which signals that validation succeeded), then dict will contain
+        a single key 'document' whose value is a dict representing the document that was validated. If bool is False
+        (which signals that validation failed), then dict will contain two keys: (1) 'document' whose value
+        is a dict representing the document that failed validation; and (2) 'errors' whose value is a list
+        of dicts mapping JSON path elements to errors encountered at that element.
+    """
+    return validate_b12_3_0_0('CSB-schema-3_0_0-2023-08.json', document_path)
 
 
 def validate_b12_xyz_3_0_0(schema_rsrc_name: str,
@@ -203,6 +315,158 @@ def validate_b12_xyz_3_0_0(schema_rsrc_name: str,
     return _validate_return(document, errors)
 
 
+def validate_b12_xyz_3_0_0_2023_03(document_path: Union[Path, str]) -> Tuple[bool, dict]:
+    """
+    Validate B12 version 3.0.0 CSB XYZ metadata against 2023-03 JSON schema. Note: this validates
+    metadata only, and is intended for use with metadata JSON files that are separate from CSB
+    data provided in CSV or other file types.
+    :param document_path: The document to validate
+    :return: Tuple[bool, dict]. If bool is True (which signals that validation succeeded), then dict will contain
+        a single key 'document' whose value is a dict representing the document that was validated. If bool is False
+        (which signals that validation failed), then dict will contain two keys: (1) 'document' whose value
+        is a dict representing the document that failed validation; and (2) 'errors' whose value is a list
+        of dicts mapping JSON path elements to errors encountered at that element.
+    """
+    return validate_b12_xyz_3_0_0('XYZ-CSB-schema-3_0_0-2023-03.json', document_path)
+
+
+def validate_b12_xyz_3_0_0_2023_08(document_path: Union[Path, str]) -> Tuple[bool, dict]:
+    """
+    Validate B12 version 3.0.0 CSB XYZ metadata against 2023-03 JSON schema. Note: this validates
+    metadata only, and is intended for use with metadata JSON files that are separate from CSB
+    data provided in CSV or other file types.
+    :param document_path: The document to validate
+    :return: Tuple[bool, dict]. If bool is True (which signals that validation succeeded), then dict will contain
+        a single key 'document' whose value is a dict representing the document that was validated. If bool is False
+        (which signals that validation failed), then dict will contain two keys: (1) 'document' whose value
+        is a dict representing the document that failed validation; and (2) 'errors' whose value is a list
+        of dicts mapping JSON path elements to errors encountered at that element.
+    """
+    return validate_b12_xyz_3_0_0('XYZ-CSB-schema-3_0_0-2023-08.json', document_path)
+
+
+def validate_b12_3_1_0_properties(document: dict, errors: List) -> None:
+    """
+    Do custom semantic validation on metadata properties
+    """
+    properties: dict = _get_properties(document, errors)
+    if properties is None:
+        return
+
+    if 'platform' not in properties:
+        return
+
+    # There is 'platform' metadata, in which case we'll want to do some custom validation
+    platform = properties['platform']
+    # Custom validator for Platform.IDNumber, which depends on Platform.IDType
+    if 'IDType' not in platform:
+        errors.append(_error_factory('/properties/platform',
+                                     "'IDType' attribute not present, but must be."))
+    id_type = platform['IDType']
+    if 'IDNumber' not in platform:
+        errors.append(_error_factory('/properties/platform',
+                                     "'IDNumber' attribute not present, but must be."))
+    id_number = platform['IDNumber']
+    try:
+        if not ID_NUMBER_RE[id_type].match(id_number):
+            errors.append(_error_factory('/properties/platform/IDNumber',
+                                         f"IDNumber {id_number} is not valid for IDType {id_type}."))
+    except KeyError:
+        errors.append(_error_factory('/properties/platform/IDType',
+                                     f"Unknown IDType {id_type}."))
+
+    # Add custom validator for Platform.dataProcessed, which if False, Processing entries should not be present.
+    data_processed = platform.get('dataProcessed', False)
+    if data_processed:
+        # dataProcessed is True, so "processing" entry ought to be present
+        if 'processing' not in properties:
+            errors.append(_error_factory('/properties/platform/dataProcessed',
+                                         f"dataProcessed flag is 'true', but 'processing' properties were not found."))
+    else:
+        # dataProcessed is False, so "processing" entry should not be present
+        if 'processing' in properties:
+            errors.append(_error_factory('/properties/platform/dataProcessed',
+                                         f"dataProcessed flag is 'false', but 'processing' properties were found."))
+    if 'uniqueID' in platform:
+        # 'uniqueID' can be present in platform as a duplicate of the required element 'uniqueVesselID` in
+        # trustedNode. This is necessary to provide backward compatibility with DCDB ingest processing.
+        if platform['uniqueID'] != properties['trustedNode']['uniqueVesselID']:
+            errors.append(_error_factory('/properties/platform/uniqueID',
+                                         f"uniqueID: {platform['uniqueID']} "
+                                         'does not match /properties/trustedNode/uniqueVesselID: '
+                                         f"{properties['trustedNode']['uniqueVesselID']}"))
+
+
+def validate_b12_3_1_0_plus_features(document: dict, errors: List,
+                                     get_processing_meta: Callable[[dict, list], Optional[dict]] = \
+                                             _get_properties_processing) -> None:
+    """
+    Do custom semantic validation on features for B12 v. 3.1.0, 3.2.0-BETA, and later
+    """
+
+    features = _get_features(document, errors)
+    if features is None:
+        return
+
+    # Look for presence of uncertainty in any datum, if present, make sure Uncertainty processing metadata
+    # element is also present
+    uncert_present = False
+    first_feature_with_uncert = 0
+    for f in features:
+        if 'uncertainty' in f['properties']:
+            uncert_present = True
+            break
+        first_feature_with_uncert += 1
+    if uncert_present:
+        properties: dict = _get_properties(document, errors)
+        if properties is None:
+            return
+
+        error_mesg: str = 'Observation uncertainty found, but Uncertainty metadata was not found.'
+        uncert_meta_present = False
+        processing: dict = get_processing_meta(properties, errors)
+        if processing is not None:
+            for p in processing:
+                if p['type'] == 'Uncertainty':
+                    uncert_meta_present = True
+                    break
+        if not uncert_meta_present:
+            errors.append(_error_factory(f"/features/{first_feature_with_uncert}/properties",
+                                         error_mesg))
+
+
+def validate_b12_3_1_0(schema_rsrc_name: str,
+                       document_path: Union[Path, str], *,
+                       validate_uncertainty: bool = True) -> Tuple[bool, dict]:
+    """
+    Validate B12 version 3.1.0 CSB data and metadata against JSON schema
+    :param schema_rsrc_name: Internal resource name of schema document to use for validation
+    :param document_path: The document to validate
+    :param validate_uncertainty: Boolean flag controlling whether uncertainty metadata should be validated.
+    :return: Tuple[bool, dict]. If bool is True (which signals that validation succeeded), then dict will contain
+        a single key 'document' whose value is a dict representing the document that was validated. If bool is False
+        (which signals that validation failed), then dict will contain two keys: (1) 'document' whose value
+        is a dict representing the document that failed validation; and (2) 'errors' whose value is a list
+        of dicts mapping JSON path elements to errors encountered at that element.
+    """
+    validator = _get_validator(schema_rsrc_name)
+    document = _open_document(document_path)
+
+    # Do "structural" validation using jsonschema and capture all errors encountered
+    errors = []
+    for e in validator.iter_errors(document):
+        # Basic validation against schema failed, note the failures, but allow validation to continue
+        errors.append(_error_factory('/' + '/'.join([str(elem) for elem in e.absolute_path]),
+                                     e.message))
+
+    # Do custom "semantic" validation that is difficult/not possible to express in JSON schema
+    validate_b12_3_1_0_properties(document, errors)
+    if validate_uncertainty:
+        validate_b12_3_1_0_plus_features(document, errors)
+
+    return _validate_return(document, errors)
+
+
 def validate_b12_3_1_0_2023_03(document_path: Union[Path, str]) -> Tuple[bool, dict]:
     """
     Validate B12 version 3.1.0 CSB data and metadata against 2023-03 JSON schema
@@ -213,93 +477,69 @@ def validate_b12_3_1_0_2023_03(document_path: Union[Path, str]) -> Tuple[bool, d
         is a dict representing the document that failed validation; and (2) 'errors' whose value is a list
         of dicts mapping JSON path elements to errors encountered at that element.
     """
-    return validate_b12_3_1_0('CSB-schema-3_1_0-2023-03.json', document_path)
+    return validate_b12_3_1_0('CSB-schema-3_1_0-2023-03.json', document_path, validate_uncertainty=False)
 
 
-def validate_b12_3_1_0(schema_rsrc_name: str,
-                       document_path: Union[Path, str]) -> Tuple[bool, dict]:
+def validate_b12_3_1_0_2023_08(document_path: Union[Path, str]) -> Tuple[bool, dict]:
     """
-    Validate B12 version 3.1.0 CSB data and metadata against JSON schema
-    :param schema_rsrc_name: Internal resource name of schema document to use for validation
+    Validate B12 version 3.1.0 CSB data and metadata against 2023-08 JSON schema
     :param document_path: The document to validate
-    :param validator:
     :return: Tuple[bool, dict]. If bool is True (which signals that validation succeeded), then dict will contain
         a single key 'document' whose value is a dict representing the document that was validated. If bool is False
         (which signals that validation failed), then dict will contain two keys: (1) 'document' whose value
         is a dict representing the document that failed validation; and (2) 'errors' whose value is a list
         of dicts mapping JSON path elements to errors encountered at that element.
     """
-    validator = _get_validator(schema_rsrc_name)
-    document = _open_document(document_path)
+    return validate_b12_3_1_0('CSB-schema-3_1_0-2023-08.json', document_path)
 
-    errors = []
-    for e in validator.iter_errors(document):
-        # Basic validation against schema failed, note the failures, but allow validation to continue
-        errors.append(_error_factory('/' + '/'.join([str(elem) for elem in e.absolute_path]),
-                                     e.message))
 
-    if 'properties' not in document:
-        errors.append(_error_factory('/',
-                                     "'properties' is a required property."))
-        return _validate_return(document, errors)
+def validate_b12_3_2_0_properties(document: dict, errors: List) -> None:
+    properties: dict = _get_properties(document, errors)
+    if properties is None:
+        return None
 
-    properties = document['properties']
-
-    # See if there is 'platform' metadata, in which case we'll want to do some custom validation
-    if 'platform' in properties:
-        platform = properties['platform']
-        # Custom validator for Platform.IDNumber, which depends on Platform.IDType
-        if 'IDType' not in platform:
-            errors.append(_error_factory('/properties/platform',
+    # See if there is 'trustedNodePlatform' metadata, in which case we'll want to do some custom validation
+    if 'trustedNodePlatform' in properties:
+        tnp = properties['trustedNodePlatform']
+        # Custom validator for trustedNodePlatform/IDNumber, which depends on trustedNodePlatform/IDType
+        if 'IDType' not in tnp:
+            errors.append(_error_factory('/properties/trustedNodePlatform',
                                          "'IDType' attribute not present, but must be."))
-        id_type = platform['IDType']
-        if 'IDNumber' not in platform:
-            errors.append(_error_factory('/properties/platform',
+        id_type = tnp['IDType']
+        if 'IDNumber' not in tnp:
+            errors.append(_error_factory('/properties/trustedNodePlatform',
                                          "'IDNumber' attribute not present, but must be."))
-        id_number = platform['IDNumber']
+        id_number = tnp['IDNumber']
         try:
             if not ID_NUMBER_RE[id_type].match(id_number):
-                errors.append(_error_factory('/properties/platform/IDNumber',
+                errors.append(_error_factory('/properties/trustedNodePlatform/IDNumber',
                                              f"IDNumber {id_number} is not valid for IDType {id_type}."))
         except KeyError:
-            errors.append(_error_factory('/properties/platform/IDType',
-                          f"Unknown IDType {id_type}."))
+            errors.append(_error_factory('/properties/trustedNodePlatform/IDType',
+                                         f"Unknown IDType {id_type}."))
 
-        # Add custom validator for Platform.dataProcessed, which if False, Processing entries should not be present.
-        data_processed = platform.get('dataProcessed', False)
-        if data_processed:
-            # dataProcessed is True, so "processing" entry ought to be present
-            if 'processing' not in properties:
-                errors.append(_error_factory('/properties/platform/dataProcessed',
-                                             f"dataProcessed flag is 'true', but 'processing' properties were not found."))
-        else:
-            # dataProcessed is False, so "processing" entry should not be present
-            if 'processing' in properties:
-                errors.append(_error_factory('/properties/platform/dataProcessed',
-                                             f"dataProcessed flag is 'false', but 'processing' properties were found."))
-        if 'uniqueID' in platform:
-            # 'uniqueID' can be present in platform as a duplicate of the required element 'uniqueVesselID` in
-            # trustedNode. This is necessary to provide backward compatibility with DCDB ingest processing.
-            if platform['uniqueID'] != properties['trustedNode']['uniqueVesselID']:
-                errors.append(_error_factory('/properties/platform/uniqueID',
-                                             f"uniqueID: {platform['uniqueID']} "
-                                             'does not match /properties/trustedNode/uniqueVesselID: '
-                                             f"{properties['trustedNode']['uniqueVesselID']}"))
-
-    return _validate_return(document, errors)
-
-
-def validate_b12_3_2_0_BETA(document_path: Union[Path, str]) -> Tuple[bool, dict]:
-    """
-    Validate B12 version 3.2.0-BETA CSB data and metadata against BETA JSON schema
-    :param document_path: The document to validate
-    :return: If bool is True (which signals that validation succeeded), then dict will contain
-        a single key 'document' whose value is a dict representing the document that was validated. If bool is False
-        (which signals that validation failed), then dict will contain two keys: (1) 'document' whose value
-        is a dict representing the document that failed validation; and (2) 'errors' whose value is a list
-        of dicts mapping JSON path elements to errors encountered at that element.
-    """
-    return validate_b12_3_2_0('CSB-schema-3_2_0-BETA.json', document_path)
+    if 'observationCollection' in properties:
+        obs_coll = properties['observationCollection']
+        if 'platform' in obs_coll:
+            platform = obs_coll['platform']
+            # Add custom validator for Platform.dataProcessed, which if False, Processing entries should not be present.
+            data_processed = platform.get('dataProcessed', False)
+            if data_processed:
+                # dataProcessed is True, so "processing" entry ought to be present
+                if 'processing' not in obs_coll:
+                    errors.append(_error_factory('/properties/observationCollection/platform',
+                                                 ("dataProcessed flag is 'true', but "
+                                                  "'/properties/observationCollection/processing' "
+                                                  "properties were NOT found."))
+                                  )
+            else:
+                # dataProcessed is False, so "processing" observation collection entry should not be present
+                if 'processing' in obs_coll:
+                    errors.append(_error_factory('/properties/observationCollection/platform',
+                                                 ("dataProcessed flag is 'false', but "
+                                                  "'/properties/observationCollection/processing' "
+                                                  "properties were found."))
+                                  )
 
 
 def validate_b12_3_2_0(schema_rsrc_name: str,
@@ -328,54 +568,22 @@ def validate_b12_3_2_0(schema_rsrc_name: str,
         errors.append(_error_factory('/' + '/'.join([str(elem) for elem in e.absolute_path]),
                                      e.message))
 
-    if 'properties' not in document:
-        errors.append(_error_factory('/',
-                                     "'properties' is a required property."))
-        return _validate_return(document, errors)
-
-    properties = document['properties']
-
-    # See if there is 'trustedNodePlatform' metadata, in which case we'll want to do some custom validation
-    if 'trustedNodePlatform' in properties:
-        tnp = properties['trustedNodePlatform']
-        # Custom validator for trustedNodePlatform/IDNumber, which depends on trustedNodePlatform/IDType
-        if 'IDType' not in tnp:
-            errors.append(_error_factory('/properties/trustedNodePlatform',
-                                         "'IDType' attribute not present, but must be."))
-        id_type = tnp['IDType']
-        if 'IDNumber' not in tnp:
-            errors.append(_error_factory('/properties/trustedNodePlatform',
-                                         "'IDNumber' attribute not present, but must be."))
-        id_number = tnp['IDNumber']
-        try:
-            if not ID_NUMBER_RE[id_type].match(id_number):
-                errors.append(_error_factory('/properties/trustedNodePlatform/IDNumber',
-                                             f"IDNumber {id_number} is not valid for IDType {id_type}."))
-        except KeyError:
-            errors.append(_error_factory('/properties/trustedNodePlatform/IDType',
-                          f"Unknown IDType {id_type}."))
-
-    if 'observationCollection' in properties:
-        obs_coll = properties['observationCollection']
-        if 'platform' in obs_coll:
-            platform = obs_coll['platform']
-            # Add custom validator for Platform.dataProcessed, which if False, Processing entries should not be present.
-            data_processed = platform.get('dataProcessed', False)
-            if data_processed:
-                # dataProcessed is True, so "processing" entry ought to be present
-                if 'processing' not in obs_coll:
-                    errors.append(_error_factory('/properties/observationCollection/platform',
-                                                 ("dataProcessed flag is 'true', but "
-                                                  "'/properties/observationCollection/processing' "
-                                                  "properties were NOT found."))
-                                  )
-            else:
-                # dataProcessed is False, so "processing" observation collection entry should not be present
-                if 'processing' in obs_coll:
-                    errors.append(_error_factory('/properties/observationCollection/platform',
-                                                 ("dataProcessed flag is 'false', but "
-                                                  "'/properties/observationCollection/processing' "
-                                                  "properties were found."))
-                                  )
+    # Do custom "semantic" validation that is difficult/not possible to express in JSON schema
+    validate_b12_3_2_0_properties(document, errors)
+    validate_b12_3_1_0_plus_features(document, errors,
+                                     get_processing_meta=_get_properties_obs_coll_processing)
 
     return _validate_return(document, errors)
+
+
+def validate_b12_3_2_0_BETA(document_path: Union[Path, str]) -> Tuple[bool, dict]:
+    """
+    Validate B12 version 3.2.0-BETA CSB data and metadata against BETA JSON schema
+    :param document_path: The document to validate
+    :return: If bool is True (which signals that validation succeeded), then dict will contain
+        a single key 'document' whose value is a dict representing the document that was validated. If bool is False
+        (which signals that validation failed), then dict will contain two keys: (1) 'document' whose value
+        is a dict representing the document that failed validation; and (2) 'errors' whose value is a list
+        of dicts mapping JSON path elements to errors encountered at that element.
+    """
+    return validate_b12_3_2_0('CSB-schema-3_2_0-BETA.json', document_path)

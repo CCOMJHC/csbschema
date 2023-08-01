@@ -36,7 +36,7 @@ test = [
 "Bug Tracker" = "https://github.com/CCOMJHC/csbschema/issues"
 
 [project.scripts]
-csbschema = "csbschema.cmd.__main__:main"
+csbschema = "csbschema.command.__main__:main"
 
 [tool.setuptools.dynamic]
 version = {attr = "csbschema.__version__"}

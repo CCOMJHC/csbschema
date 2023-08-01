@@ -132,54 +132,6 @@
       }
     },
     {
-      "type": "Uncertainty",
-      "timestamp": "2021-11-22T16:10:09.346821",
-      "detail": {
-        "name": "CIDCO Vertical Uncertainty Estimator",
-        "parameters": "FREE TEXT HERE",
-        "version": "1.0.0",
-        "comment": "FREE TEXT HERE",
-        "reference": "DOI:10.47366/sabia.v5n1a3"
-      }
-    },
-    {
-      "type": "VerticalOffsetAnalysis",
-      "timestamp": "2021-11-22T16:10:09.346821Z",
-      "detail": {
-        "name": "CIDCO Vertical Offset Analysis",
-        "version": "1.0.0",
-        "reference": "DOI:10.47366/sabia.v5n1a3",
-        "comment": "FREE TEXT HERE",
-        "offsets": [
-          {
-            "x": 74.328345,
-            "y": -23.4634,
-            "z": 25.231,
-            "delta": 0.23
-          }
-        ],
-        "analysis": [
-          {
-            "name": "Chi2",
-            "pass": true,
-            "parameters": {
-              "a": 123.456,
-              "b": 789.012,
-              "target": "Normal",
-              "df": 15,
-              "alpha": 0.05,
-              "pmf": {
-                "centers": [-1.0, -0.5, 0, 0.5, 1.0],
-                "counts": [0, 24, 50, 120, 23, 0]
-              }
-            },
-            "reference": "DOI:10.47366/sabia.v5n1a3",
-            "comment": "FREE TEXT HERE"
-          }
-        ]
-      }
-    },
-    {
       "type": "CRS",
       "timestamp": "2021-11-22T16:10:09.346821",
       "detail": {
@@ -201,8 +153,7 @@
       },
       "properties": {
         "depth": 108.9,
-        "time": "2015-08-06T22:00:00.000Z",
-        "uncertainty": [1.1, 2.2, 3.3]
+        "time": "2015-08-06T22:00:00.000Z"
       }
     }
   ]
