@@ -13,7 +13,8 @@ Get a PyPi/Test PyPi API token(s) and save to $HOME/.pypirc
 Do the following before releasing:
   - Make sure pyproject.toml is up-to-date
   - Make sure README.md is up-to-date
-  - Make sure $id URLI elements of all schema documents are correct and resolve.
+  - Make sure $id URI elements of all schema documents are correct and resolve.
+  - Create new release on GitHub
 
 ## Build for upload to PyPi
 

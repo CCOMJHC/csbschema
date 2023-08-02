@@ -83,7 +83,7 @@ class TestValidatorsCurrent(unittest.TestCase):
         self.assertEqual('/properties/trustedNode/convention', error['path'])
         self.assertEqual("'GeoJSON CSB 3.0' is not one of ['GeoJSON CSB 3.1']", error['message'])
         error = errors[1]
-        self.assertEqual('/properties/processing/6', error['path'])
+        self.assertEqual('/properties/processing/5', error['path'])
         self.assertEqual("{'type': 'VerticalOffsetAnalysis', 'timestamp': '2021-11-22T16:10:09.346821Z', 'name': 'CIDCO Vertical Offset Analysis', 'version': '1.0.0', 'reference': 'DOI:10.47366/sabia.v5n1a3', 'comment': 'FREE TEXT HERE', 'analysis': [{'name': 'Chi2', 'pass': True, 'parameters': {'a': 123.456, 'b': 789.012, 'target': 'Normal', 'df': 15, 'alpha': 0.05, 'pmf': {'centers': [-1.0, -0.5, 0, 0.5, 1.0], 'counts': [0, 24, 50, 120, 23, 0]}}, 'reference': 'DOI:10.47366/sabia.v5n1a3', 'comment': 'FREE TEXT HERE'}]} is not valid under any of the given schemas",
                          error['message'])
         error = errors[2]
