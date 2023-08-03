@@ -39,9 +39,16 @@ csbschema validate -f docs/IHO/b12_v3_1_0_example.json || exit $?
 # 2023-03
 csbschema validate -f docs/IHO/b12_v3_1_0_example-2023-03.json \
   --version 3.1.0-2023-03 || exit $?
-
-
+# File expected to be invalid
 csbschema validate -f docs/IHO/b12_v3_1_0_example-invalid.json
+check_failed_as_expected
+
+# Validate B12 3.1.0 XYZ metadata
+csbschema validate -f docs/IHO/b12_v3_1_0_xyz_example.json \
+  --version XYZ-3.1.0-2023-08 || exit $?
+# File expected to be invalid
+csbschema validate -f docs/IHO/b12_v3_1_0_xyz_example-invalid.json \
+  --version XYZ-3.1.0-2023-08
 check_failed_as_expected
 
 
