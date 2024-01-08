@@ -3,7 +3,7 @@
 # csbschema
 
 `csbschema` defines a JSON Schema and validator (implemented in Pyhon) for 
-[IHO B-12 Crowdsourced Bathymetry](https://iho.int/uploads/user/pubs/Drafts/CSB-Guidance_Document-Edition_3.0.pdf) 
+[IHO B-12 Crowdsourced Bathymetry](https://iho.int/uploads/user/pubs/bathy/B_12_CSB-Guidance_Document-Edition_3.0.0_Final.pdf) 
 metadata and data.
 
 # Installation
