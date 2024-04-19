@@ -528,6 +528,19 @@ def validate_b12_3_1_0_2023_03(document_path: Union[Path, str]) -> Tuple[bool, d
                               validate_uncertainty=False)
 
 
+def validate_b12_3_1_0_2024_04(document_path: Union[Path, str]) -> Tuple[bool, dict]:
+    """
+    Validate B12 version 3.1.0 CSB data and metadata against 2024-04 JSON schema
+    :param document_path: The document to validate
+    :return: Tuple[bool, dict]. If bool is True (which signals that validation succeeded), then dict will contain
+        a single key 'document' whose value is a dict representing the document that was validated. If bool is False
+        (which signals that validation failed), then dict will contain two keys: (1) 'document' whose value
+        is a dict representing the document that failed validation; and (2) 'errors' whose value is a list
+        of dicts mapping JSON path elements to errors encountered at that element.
+    """
+    return validate_b12_3_1_0('CSB-schema-3_1_0-2024-04.json', document_path)
+
+
 def validate_b12_3_1_0_2023_08(document_path: Union[Path, str]) -> Tuple[bool, dict]:
     """
     Validate B12 version 3.1.0 CSB data and metadata against 2023-08 JSON schema
@@ -541,9 +554,22 @@ def validate_b12_3_1_0_2023_08(document_path: Union[Path, str]) -> Tuple[bool, d
     return validate_b12_3_1_0('CSB-schema-3_1_0-2023-08.json', document_path)
 
 
+def validate_b12_xyz_3_1_0_2024_04(document_path: Union[Path, str]) -> Tuple[bool, dict]:
+    """
+    Validate B12 version 3.1.0 CSB XYZ metadata against 2024-04 JSON schema
+    :param document_path: The document to validate
+    :return: Tuple[bool, dict]. If bool is True (which signals that validation succeeded), then dict will contain
+        a single key 'document' whose value is a dict representing the document that was validated. If bool is False
+        (which signals that validation failed), then dict will contain two keys: (1) 'document' whose value
+        is a dict representing the document that failed validation; and (2) 'errors' whose value is a list
+        of dicts mapping JSON path elements to errors encountered at that element.
+    """
+    return validate_b12_xyz_3_1_0('XYZ-CSB-schema-3_1_0-2024-04.json', document_path)
+
+
 def validate_b12_xyz_3_1_0_2023_08(document_path: Union[Path, str]) -> Tuple[bool, dict]:
     """
-    Validate B12 version 3.1.0 CSB data and metadata against 2023-08 JSON schema
+    Validate B12 version 3.1.0 CSB XYZ metadata against 2023-08 JSON schema
     :param document_path: The document to validate
     :return: Tuple[bool, dict]. If bool is True (which signals that validation succeeded), then dict will contain
         a single key 'document' whose value is a dict representing the document that was validated. If bool is False

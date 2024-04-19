@@ -4,7 +4,7 @@ from typing import List
 
 import xmlrunner
 
-from csbschema.validators import validate_b12_3_1_0_2023_08, validate_b12_xyz_3_1_0_2023_08, \
+from csbschema.validators import validate_b12_3_1_0_2024_04, validate_b12_xyz_3_1_0_2024_04, \
     validate_b12_3_0_0_2023_08, validate_b12_xyz_3_0_0_2023_08, validate_b12_3_2_0_BETA
 
 
@@ -49,7 +49,7 @@ class TestValidatorsCurrent(unittest.TestCase):
         # Validate a valid file with processing metadata
         b12_filepath = Path(self.fixtures_dir, 'IHO',
                             'b12_v3_1_0_example.json')
-        (valid, result) = validate_b12_3_1_0_2023_08(b12_filepath)
+        (valid, result) = validate_b12_3_1_0_2024_04(b12_filepath)
         self.assertTrue(valid)
         self.assertTrue(isinstance(result, dict))
         document: dict = result['document']
@@ -60,7 +60,7 @@ class TestValidatorsCurrent(unittest.TestCase):
         # Validate a valid file without processing metadata
         b12_filepath = Path(self.fixtures_dir, 'IHO',
                             'b12_v3_1_0_example-noprocessing.json')
-        (valid, result) = validate_b12_3_1_0_2023_08(b12_filepath)
+        (valid, result) = validate_b12_3_1_0_2024_04(b12_filepath)
         self.assertTrue(valid)
         self.assertTrue(isinstance(result, dict))
         document: dict = result['document']
@@ -72,7 +72,7 @@ class TestValidatorsCurrent(unittest.TestCase):
         # Validate an invalid file
         b12_filepath_invalid = Path(self.fixtures_dir, 'IHO',
                                     'b12_v3_1_0_example-invalid.json')
-        (valid, result) = validate_b12_3_1_0_2023_08(b12_filepath_invalid)
+        (valid, result) = validate_b12_3_1_0_2024_04(b12_filepath_invalid)
         self.assertFalse(valid)
         self.assertTrue(isinstance(result, dict))
         document: dict = result['document']
@@ -115,7 +115,7 @@ class TestValidatorsCurrent(unittest.TestCase):
         # Validate an invalid file with an empty processing property array
         b12_filepath_invalid = Path(self.fixtures_dir, 'IHO',
                                     'b12_v3_1_0_example-invalid-emptyprocessing.json')
-        (valid, result) = validate_b12_3_1_0_2023_08(b12_filepath_invalid)
+        (valid, result) = validate_b12_3_1_0_2024_04(b12_filepath_invalid)
         self.assertFalse(valid)
         self.assertTrue(isinstance(result, dict))
         document: dict = result['document']
@@ -135,7 +135,7 @@ class TestValidatorsCurrent(unittest.TestCase):
         documents = [Path(self.fixtures_dir, 'IHO',
                           'b12_v3_1_0_xyz_example.json')]
         for doc_path in documents:
-            (valid, result) = validate_b12_xyz_3_1_0_2023_08(doc_path)
+            (valid, result) = validate_b12_xyz_3_1_0_2024_04(doc_path)
             self.assertTrue(valid)
             self.assertTrue(isinstance(result, dict))
             document: dict = result['document']
@@ -146,7 +146,7 @@ class TestValidatorsCurrent(unittest.TestCase):
     def test_validate_b12_xyz_3_1_0_invalid(self):
         b12_filepath_invalid = Path(self.fixtures_dir, 'IHO',
                                     'b12_v3_1_0_xyz_example-invalid.json')
-        (valid, result) = validate_b12_xyz_3_1_0_2023_08(b12_filepath_invalid)
+        (valid, result) = validate_b12_xyz_3_1_0_2024_04(b12_filepath_invalid)
         self.assertFalse(valid)
         self.assertTrue(isinstance(result, dict))
         document: dict = result['document']

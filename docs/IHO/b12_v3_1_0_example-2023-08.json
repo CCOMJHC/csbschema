@@ -53,11 +53,6 @@
     },
     "processing": [
       {
-        "type": "TimeStampInterpolation",
-        "timestamp": "2023-02-14T01:00:00.0000Z",
-        "method": "Linear interpolation"
-      },
-      {
         "type": "CRSChange",
         "timestamp": "2023-02-14T02:00:00.0000Z",
         "original": "EPSG:4326",
