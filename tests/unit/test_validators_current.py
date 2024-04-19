@@ -124,7 +124,7 @@ class TestValidatorsCurrent(unittest.TestCase):
         self.assertEqual(2, len(errors))
         error = errors[0]
         self.assertEqual('/properties/processing', error['path'])
-        self.assertEqual('[] is too short', error['message'])
+        self.assertEqual('[] should be non-empty', error['message'])
         # Check error message for missing uncert. metadata
         error = errors[1]
         self.assertEqual('/features/2/properties', error['path'])

@@ -18,7 +18,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    'jsonschema[format]>=4.6.0',
+    'jsonschema[format]~=4.21.0',
 ]
 
 [project.optional-dependencies]
