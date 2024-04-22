@@ -4,6 +4,9 @@
 name: Flake 8 and unit tests
 
 on:
+  schedule:
+    # Do a weekly build every Tues. at 03:17 UTC to ensure changes in dependencies don't break this project.
+    - cron: "17 3 * * 2"
   push:
     branches: [ "main" ]
   pull_request:
