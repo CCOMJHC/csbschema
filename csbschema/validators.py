@@ -353,21 +353,26 @@ def validate_b12_3_1_0_platform(properties: dict, errors: List, *,
     # There is 'platform' metadata, in which case we'll want to do some custom validation
     platform = properties['platform']
     # Custom validator for Platform.IDNumber, which depends on Platform.IDType
-    if 'IDType' not in platform:
+    if 'IDNumber' in platform:
+        if 'IDType' not in platform:
+            errors.append(_error_factory(f"{context_path}/platform",
+                                         ("'IDType' attribute is not present, "
+                                          "but must be as attribute 'IDNumber' is present.")
+                                         ))
+        else:
+            # IDNumber and IDType are specified, validate that IDNumber is of type IDType
+            id_type = platform['IDType']
+            id_number = platform['IDNumber']
+            try:
+                if not ID_NUMBER_RE[id_type].match(id_number):
+                    errors.append(_error_factory(f"{context_path}/platform/IDNumber",
+                                                 f"IDNumber {id_number} is not valid for IDType {id_type}."))
+            except KeyError:
+                errors.append(_error_factory(f"{context_path}/platform/IDType",
+                                             f"Unknown IDType {id_type}."))
+    elif 'IDType' in platform:
         errors.append(_error_factory(f"{context_path}/platform",
-                                     "'IDType' attribute not present, but must be."))
-    id_type = platform['IDType']
-    if 'IDNumber' not in platform:
-        errors.append(_error_factory(f"{context_path}/platform",
-                                     "'IDNumber' attribute not present, but must be."))
-    id_number = platform['IDNumber']
-    try:
-        if not ID_NUMBER_RE[id_type].match(id_number):
-            errors.append(_error_factory(f"{context_path}/platform/IDNumber",
-                                         f"IDNumber {id_number} is not valid for IDType {id_type}."))
-    except KeyError:
-        errors.append(_error_factory(f"{context_path}/platform/IDType",
-                                     f"Unknown IDType {id_type}."))
+                                     "'IDType' was specified but 'IDNumber' was not."))
 
     # Add custom validator for Platform.dataProcessed, which if False, Processing entries should not be present.
     data_processed = platform.get('dataProcessed', False)

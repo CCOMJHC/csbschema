@@ -45,6 +45,71 @@ class TestValidatorsCurrent(unittest.TestCase):
             with self.assertRaises(KeyError):
                 _: dict = result['errors']
 
+    def test_validate_b12_3_1_0_required(self):
+        # Validate a valid file with processing metadata
+        b12_filepath = Path(self.fixtures_dir, 'IHO',
+                            'b12_v3_1_0_example-required.json')
+        (valid, result) = validate_b12_3_1_0_2024_04(b12_filepath)
+        self.assertTrue(valid)
+        self.assertTrue(isinstance(result, dict))
+        document: dict = result['document']
+        self.assertTrue(isinstance(document, dict))
+        with self.assertRaises(KeyError):
+            _: dict = result['errors']
+
+    def test_validate_b12_3_1_0_pltfrm_subset(self):
+        # Validate a valid file with subset of platform metadata
+        b12_filepath = Path(self.fixtures_dir, 'IHO',
+                            'b12_v3_1_0_example-pltfrm-subset.json')
+        (valid, result) = validate_b12_3_1_0_2024_04(b12_filepath)
+        self.assertTrue(valid)
+        self.assertTrue(isinstance(result, dict))
+        document: dict = result['document']
+        self.assertTrue(isinstance(document, dict))
+        with self.assertRaises(KeyError):
+            _: dict = result['errors']
+
+    def test_validate_b12_3_1_0_pltfrm_subset_id(self):
+        # Validate a valid file with vessel ID elements of platform metadata
+        b12_filepath = Path(self.fixtures_dir, 'IHO',
+                            'b12_v3_1_0_example-pltfrm-subset-id.json')
+        (valid, result) = validate_b12_3_1_0_2024_04(b12_filepath)
+        self.assertTrue(valid)
+        self.assertTrue(isinstance(result, dict))
+        document: dict = result['document']
+        self.assertTrue(isinstance(document, dict))
+        with self.assertRaises(KeyError):
+            _: dict = result['errors']
+
+        # Validate invalid file with ID number present but without ID type
+        b12_filepath_invalid = Path(self.fixtures_dir, 'IHO',
+                                    'b12_v3_1_0_example-pltfrm-subset-id-typemissing.json')
+        (valid, result) = validate_b12_3_1_0_2024_04(b12_filepath_invalid)
+        self.assertFalse(valid)
+        self.assertTrue(isinstance(result, dict))
+        document: dict = result['document']
+        self.assertTrue(isinstance(document, dict))
+        errors: List[dict] = result['errors']
+        self.assertEqual(1, len(errors))
+        error = errors[0]
+        self.assertEqual('/properties/platform', error['path'])
+        self.assertEqual("'IDType' attribute is not present, but must be as attribute 'IDNumber' is present.", error['message'])
+
+        # Validate invalid file with ID type present but without ID number
+        b12_filepath_invalid = Path(self.fixtures_dir, 'IHO',
+                                    'b12_v3_1_0_example-pltfrm-subset-id-numbermissing.json')
+        (valid, result) = validate_b12_3_1_0_2024_04(b12_filepath_invalid)
+        self.assertFalse(valid)
+        self.assertTrue(isinstance(result, dict))
+        document: dict = result['document']
+        self.assertTrue(isinstance(document, dict))
+        errors: List[dict] = result['errors']
+        self.assertEqual(1, len(errors))
+        error = errors[0]
+        self.assertEqual('/properties/platform', error['path'])
+        self.assertEqual("'IDType' was specified but 'IDNumber' was not.",
+                         error['message'])
+
     def test_validate_b12_3_1_0_valid(self):
         # Validate a valid file with processing metadata
         b12_filepath = Path(self.fixtures_dir, 'IHO',
@@ -131,6 +196,71 @@ class TestValidatorsCurrent(unittest.TestCase):
         self.assertEqual('Observation uncertainty found, but Uncertainty metadata was not found.',
                          error['message'])
 
+    def test_validate_b12_xyz_3_1_0_required(self):
+        documents = [Path(self.fixtures_dir, 'IHO',
+                          'b12_v3_1_0_xyz_example-required.json')]
+        for doc_path in documents:
+            (valid, result) = validate_b12_xyz_3_1_0_2024_04(doc_path)
+            self.assertTrue(valid)
+            self.assertTrue(isinstance(result, dict))
+            document: dict = result['document']
+            self.assertTrue(isinstance(document, dict))
+            with self.assertRaises(KeyError):
+                _: dict = result['errors']
+
+    def test_validate_b12_xyz_3_1_0_pltfrm_subset(self):
+        # Validate a valid file with subset of platform metadata
+        b12_filepath = Path(self.fixtures_dir, 'IHO',
+                            'b12_v3_1_0_xyz_example-pltfrm-subset.json')
+        (valid, result) = validate_b12_xyz_3_1_0_2024_04(b12_filepath)
+        self.assertTrue(valid)
+        self.assertTrue(isinstance(result, dict))
+        document: dict = result['document']
+        self.assertTrue(isinstance(document, dict))
+        with self.assertRaises(KeyError):
+            _: dict = result['errors']
+
+    def test_validate_b12_xyz_3_1_0_pltfrm_subset_id(self):
+        # Validate a valid file with vessel ID elements of platform metadata
+        b12_filepath = Path(self.fixtures_dir, 'IHO',
+                            'b12_v3_1_0_xyz_example-pltfrm-subset-id.json')
+        (valid, result) = validate_b12_xyz_3_1_0_2024_04(b12_filepath)
+        self.assertTrue(valid)
+        self.assertTrue(isinstance(result, dict))
+        document: dict = result['document']
+        self.assertTrue(isinstance(document, dict))
+        with self.assertRaises(KeyError):
+            _: dict = result['errors']
+
+        # Validate invalid file with ID number present but without ID type
+        b12_filepath_invalid = Path(self.fixtures_dir, 'IHO',
+                                    'b12_v3_1_0_xyz_example-pltfrm-subset-id-typemissing.json')
+        (valid, result) = validate_b12_xyz_3_1_0_2024_04(b12_filepath_invalid)
+        self.assertFalse(valid)
+        self.assertTrue(isinstance(result, dict))
+        document: dict = result['document']
+        self.assertTrue(isinstance(document, dict))
+        errors: List[dict] = result['errors']
+        self.assertEqual(1, len(errors))
+        error = errors[0]
+        self.assertEqual('/platform', error['path'])
+        self.assertEqual("'IDType' attribute is not present, but must be as attribute 'IDNumber' is present.", error['message'])
+
+        # Validate invalid file with ID type present but without ID number
+        b12_filepath_invalid = Path(self.fixtures_dir, 'IHO',
+                                    'b12_v3_1_0_xyz_example-pltfrm-subset-id-numbermissing.json')
+        (valid, result) = validate_b12_xyz_3_1_0_2024_04(b12_filepath_invalid)
+        self.assertFalse(valid)
+        self.assertTrue(isinstance(result, dict))
+        document: dict = result['document']
+        self.assertTrue(isinstance(document, dict))
+        errors: List[dict] = result['errors']
+        self.assertEqual(1, len(errors))
+        error = errors[0]
+        self.assertEqual('/platform', error['path'])
+        self.assertEqual("'IDType' was specified but 'IDNumber' was not.",
+                         error['message'])
+
     def test_validate_b12_xyz_3_1_0_valid(self):
         documents = [Path(self.fixtures_dir, 'IHO',
                           'b12_v3_1_0_xyz_example.json')]
@@ -142,6 +272,17 @@ class TestValidatorsCurrent(unittest.TestCase):
             self.assertTrue(isinstance(document, dict))
             with self.assertRaises(KeyError):
                 _: dict = result['errors']
+
+        # Validate a valid file without processing metadata
+        b12_filepath = Path(self.fixtures_dir, 'IHO',
+                            'b12_v3_1_0_xyz_example-noprocessing.json')
+        (valid, result) = validate_b12_xyz_3_1_0_2024_04(b12_filepath)
+        self.assertTrue(valid)
+        self.assertTrue(isinstance(result, dict))
+        document: dict = result['document']
+        self.assertTrue(isinstance(document, dict))
+        with self.assertRaises(KeyError):
+            _: dict = result['errors']
 
     def test_validate_b12_xyz_3_1_0_invalid(self):
         b12_filepath_invalid = Path(self.fixtures_dir, 'IHO',
