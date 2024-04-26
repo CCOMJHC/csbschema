@@ -363,6 +363,14 @@
         "model": {
           "type": "string",
           "description": "Model used for reduction of raw data to vertical reference system"
+        },
+        "algorithm": {
+          "type": "string",
+          "description": "Algorithm used to reduce raw data to a vertical reference system."
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of algorithm used to reduce raw data to a vertical reference system."
         }
       }
     },
