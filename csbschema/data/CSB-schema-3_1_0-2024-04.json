@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/CCOMJHC/csbschema/main/csbschema/data/CSB-schema-3_1_0-2023-08.json",
+  "$id": "https://raw.githubusercontent.com/CCOMJHC/csbschema/main/csbschema/data/CSB-schema-3_1_0-2024-04.json",
   "title": "Schema for Crowdsourced Bathymetry data and metadata, version 3.1.0",
   "type": "object",
   "required": [
