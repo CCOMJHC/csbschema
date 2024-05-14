@@ -36,6 +36,9 @@ csbschema validate -f docs/NOAA/noaa_b12_v3_0_0_xyz_suggested-2023-03.json \
 # Validate B12 3.1.0
 csbschema validate -f docs/IHO/b12_v3_1_0_example.json || exit $?
 # Prior version(s):
+# 2023-08
+csbschema validate -f docs/IHO/b12_v3_1_0_example-2023-08.json \
+  --version 3.1.0-2023-08 || exit $?
 # 2023-03
 csbschema validate -f docs/IHO/b12_v3_1_0_example-2023-03.json \
   --version 3.1.0-2023-03 || exit $?
@@ -45,6 +48,10 @@ check_failed_as_expected
 
 # Validate B12 3.1.0 XYZ metadata
 csbschema validate -f docs/IHO/b12_v3_1_0_xyz_example.json \
+  --version XYZ-3.1.0-2024-04 || exit $?
+# Prior version(s):
+# 2023-08
+csbschema validate -f docs/IHO/b12_v3_1_0_xyz_example-2023-08.json \
   --version XYZ-3.1.0-2023-08 || exit $?
 # File expected to be invalid
 csbschema validate -f docs/IHO/b12_v3_1_0_xyz_example-invalid.json \

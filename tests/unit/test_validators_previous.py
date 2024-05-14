@@ -1,11 +1,10 @@
 import unittest
 from pathlib import Path
-from typing import List
 
 import xmlrunner
 
-from csbschema.validators import validate_b12_3_1_0_2023_03, \
-    validate_b12_3_0_0_2023_03, validate_b12_xyz_3_0_0_2023_03
+from csbschema.validators import validate_b12_3_1_0_2023_08, validate_b12_3_1_0_2023_03, \
+    validate_b12_3_0_0_2023_03, validate_b12_xyz_3_0_0_2023_03, validate_b12_xyz_3_1_0_2023_08
 
 
 class TestValidatorsPrevious(unittest.TestCase):
@@ -50,6 +49,42 @@ class TestValidatorsPrevious(unittest.TestCase):
         self.assertTrue(isinstance(document, dict))
         with self.assertRaises(KeyError):
             _: dict = result['errors']
+
+    def test_validate_b12_3_1_0_2023_08_valid(self):
+        # Validate a valid file with processing metadata
+        b12_filepath = Path(self.fixtures_dir, 'IHO',
+                            'b12_v3_1_0_example-2023-08.json')
+        (valid, result) = validate_b12_3_1_0_2023_08(b12_filepath)
+        self.assertTrue(valid)
+        self.assertTrue(isinstance(result, dict))
+        document: dict = result['document']
+        self.assertTrue(isinstance(document, dict))
+        with self.assertRaises(KeyError):
+            _: dict = result['errors']
+
+    def test_validate_b12_xyz_3_1_0_2023_08_valid(self):
+        documents = [Path(self.fixtures_dir, 'NOAA',
+                          'noaa_b12_v3_0_0_xyz_suggested-2023-03.json')]
+        for doc_path in documents:
+            (valid, result) = validate_b12_xyz_3_0_0_2023_03(doc_path)
+            self.assertTrue(valid)
+            self.assertTrue(isinstance(result, dict))
+            document: dict = result['document']
+            self.assertTrue(isinstance(document, dict))
+            with self.assertRaises(KeyError):
+                _: dict = result['errors']
+
+    def test_validate_b12_xyz_3_1_0_valid(self):
+        documents = [Path(self.fixtures_dir, 'IHO',
+                          'b12_v3_1_0_xyz_example-2023-08.json')]
+        for doc_path in documents:
+            (valid, result) = validate_b12_xyz_3_1_0_2023_08(doc_path)
+            self.assertTrue(valid)
+            self.assertTrue(isinstance(result, dict))
+            document: dict = result['document']
+            self.assertTrue(isinstance(document, dict))
+            with self.assertRaises(KeyError):
+                _: dict = result['errors']
 
 
 if __name__ == '__main__':

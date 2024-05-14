@@ -1,0 +1,14 @@
+{
+  "trustedNode": {
+    "providerOrganizationName": "Sea-ID",
+    "providerEmail": "support@sea-id.org",
+    "uniqueVesselID": "SEAID-e8c469f8-df38-11e5-b86d-9a79f06e9478",
+    "convention": "XYZ GeoJSON CSB 3.1",
+    "dataLicense": "CC0 1.0",
+    "providerLogger": "Rose Point ECS",
+    "providerLoggerVersion": "1.0",
+    "navigationCRS": "EPSG:4326",
+    "verticalReferenceOfDepth": "Transducer",
+    "vesselPositionReferencePoint": "GNSS"
+  }
+}
