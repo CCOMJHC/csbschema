@@ -326,6 +326,13 @@ class TestValidatorsCurrent(unittest.TestCase):
         with self.assertRaises(KeyError):
             _: dict = result['errors']
 
+    def test_validate_b12_3_1_0_invalid_previous_version(self):
+        b12_filepath_invalid = Path(self.fixtures_dir, 'NOAA',
+                                    'noaa_b12_v3_0_0_required.json')
+        (valid, result) = validate_b12_3_1_0_2024_04(b12_filepath_invalid)
+        self.assertFalse(valid)
+        self.assertTrue(isinstance(result, dict))
+
 
 if __name__ == '__main__':
     unittest.main(
