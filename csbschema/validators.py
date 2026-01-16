@@ -407,6 +407,14 @@ def validate_b12_3_1_0_properties(document: dict, errors: List) -> None:
     if 'platform' not in properties:
         return
 
+    if 'trustedNode' not in properties:
+        return
+
+    if 'uniqueVesselID' not in properties['trustedNode']:
+        errors.append(_error_factory('/properties/trustedNode',
+                                     "'uniqueVesselID' is a required property."))
+        return
+
     validate_b12_3_1_0_platform(properties, errors)
 
 
