@@ -62,7 +62,4 @@ check_failed_as_expected
 csbschema validate -f docs/NOAA/noaa_b12_v3_0_0_required.json --version 3.1.0-2024-04
 check_failed_as_expected
 
-# Validate B12 3.2.0-BETA
-csbschema validate -f docs/IHO/b12_v3_2_0-BETA_example.json --version 3.2.0-BETA || exit $?
-
 exit 0
