@@ -17,8 +17,6 @@ XYZ_B12_VERSION_3_0_0_2023_03 = 'XYZ-3.0.0-2023-03'
 XYZ_B12_VERSION_3_1_0_2023_08 = 'XYZ-3.1.0-2023-08'
 B12_VERSION_3_1_0_2023_03 = '3.1.0-2023-03'
 B12_VERSION_3_1_0_2023_08 = '3.1.0-2023-08'
-# Development versions
-B12_VERSION_3_2_0_BETA = '3.2.0-BETA'
 
 DEFAULT_VALIDATOR_VERSION = B12_VERSION_3_1_0_2024_04
 VALIDATORS = {
@@ -33,8 +31,6 @@ VALIDATORS = {
     XYZ_B12_VERSION_3_1_0_2023_08: validators.validate_b12_xyz_3_1_0_2023_08,
     B12_VERSION_3_1_0_2023_03: validators.validate_b12_3_1_0_2023_03,
     B12_VERSION_3_1_0_2023_08: validators.validate_b12_3_1_0_2023_08,
-    # Development versions
-    B12_VERSION_3_2_0_BETA: validators.validate_b12_3_2_0_BETA
 }
 
 

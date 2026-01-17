@@ -5,7 +5,7 @@ from typing import List
 import xmlrunner
 
 from csbschema.validators import validate_b12_3_1_0_2024_04, validate_b12_xyz_3_1_0_2024_04, \
-    validate_b12_3_0_0_2023_08, validate_b12_xyz_3_0_0_2023_08, validate_b12_3_2_0_BETA
+    validate_b12_3_0_0_2023_08, validate_b12_xyz_3_0_0_2023_08
 
 
 class TestValidatorsCurrent(unittest.TestCase):
@@ -313,18 +313,6 @@ class TestValidatorsCurrent(unittest.TestCase):
         self.assertEqual(
             "uniqueID: SEAID-45f5c322-10f2-4946-802e-d5992ad36727 does not match /trustedNode/uniqueVesselID: SEAID-e8c469f8-df38-11e5-b86d-9a79f06e9478",
             error['message'])
-
-    def test_validate_b12_3_2_0_BETA_valid(self):
-        # Validate a valid file with processing metadata
-        b12_filepath = Path(self.fixtures_dir, 'IHO',
-                            'b12_v3_2_0-BETA_example.json')
-        (valid, result) = validate_b12_3_2_0_BETA(b12_filepath)
-        self.assertTrue(valid)
-        self.assertTrue(isinstance(result, dict))
-        document: dict = result['document']
-        self.assertTrue(isinstance(document, dict))
-        with self.assertRaises(KeyError):
-            _: dict = result['errors']
 
     def test_validate_b12_3_1_0_invalid_previous_version(self):
         b12_filepath_invalid = Path(self.fixtures_dir, 'NOAA',
