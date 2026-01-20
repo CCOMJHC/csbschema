@@ -432,7 +432,7 @@ def validate_b12_3_1_0_plus_features(document: dict, errors: List,
                                      get_processing_meta: Callable[[dict, list], Optional[dict]] = \
                                              _get_properties_processing) -> None:
     """
-    Do custom semantic validation on features for B12 v. 3.1.0, 3.2.0-BETA, and later
+    Do custom semantic validation on features for B12 v. 3.1.0 and later
     """
 
     features = _get_features(document, errors)
