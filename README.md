@@ -60,15 +60,6 @@ CSB data file 'docs/NOAA/noaa_b12_v3_0_0_xyz_required.json' successfully validat
 The metadata-only 'XYZ schema' is meant to be used for JSON metadata supplied alongside CSB data in CSV or another 
 format.
 
-## Convention GeoJSON CSB 3.2
-A schema for a beta JSON encoding of B12 3.0.0 (e.g., convention 'GeoJSON CSB 3.2') is available under the schema
-name '3.2.0-BETA':
-```shell
-$ csbschema validate -f docs/IHO/b12_v3_2_0-BETA_example.json --version 3.2.0-BETA
-CSB data file 'docs/IHO/b12_v3_2_0-BETA_example.json' successfully validated against schema '3.2.0-BETA'.
-```
-> Run `csbschema validate --help` for more information about validating against different versions of the schema.
-
 # Testing
 First, install test dependencies:
 ```shell
